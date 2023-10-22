@@ -1,5 +1,4 @@
 #include <SFML/Graphics.hpp>
-
 struct Element {
     std::string symbol;
     std::string name;
@@ -14,7 +13,123 @@ struct Element {
     int period;
 };
 
+int getPeriod(int atomicNumber) {
+    if (atomicNumber >= 1 && atomicNumber <= 2) {
+        return 1;
+    }
+    else if (atomicNumber >= 3 && atomicNumber <= 10) {
+        return 2;
+    }
+    else if (atomicNumber >= 11 && atomicNumber <= 18) {
+        return 3;
+    }
+    else if (atomicNumber >= 19 && atomicNumber <= 36) {
+        return 4;
+    }
+    else if (atomicNumber >= 37 && atomicNumber <= 54) {
+        return 5;
+    }
+    else if (atomicNumber >= 55 && atomicNumber <= 86) {
+        return 6;
+    }
+    else if (atomicNumber >= 87 && atomicNumber <= 118) {
+        return 7;
+    }
+    return 0;
+}
+
+int getGroup(int i) {
+    if (i == 1 || i == 3 || i == 11 || i == 19 || i == 37 || i == 55 || i == 87)
+    {
+        return 1;
+    }
+    else if (i == 4 || i == 12 || i == 20 || i == 38 || i == 56 || i == 88)
+    {
+        return 2;
+    }
+    else if (i == 21 || i == 39)
+    {
+        return 3;
+    }
+    else if (i == 22 || i == 40 || i == 72 || i == 104)
+    {
+        return 4;
+    }
+    else if (i == 23 || i == 41 || i == 73 || i == 105)
+    {
+        return 5;
+    }
+    else if (i == 24 || i == 42 || i == 74 || i == 106)
+    {
+        return 6;
+    }
+    else if (i == 25 || i == 43 || i == 75 || i == 107)
+    {
+        return 7;
+    }
+    else if (i == 26 || i == 44 || i == 76 || i == 108)
+    {
+        return 8;
+    }
+    else if (i == 27 || i == 45 || i == 77 || i == 109)
+    {
+        return 9;
+    }
+    else if (i == 28 || i == 46 || i == 78 || i == 110)
+    {
+        return 10;
+    }
+    else if (i == 29 || i == 47 || i == 79 || i == 111)
+    {
+        return 11;
+    }
+    else if (i == 30 || i == 48 || i == 80 || i == 112)
+    {
+        return 12;
+    }
+    else if (i == 5 || i == 13 || i == 31 || i == 49 || i == 81 || i == 113)
+    {
+        return 13;
+    }
+    else if (i == 6 || i == 14 || i == 32 || i == 50 || i == 82 || i == 114)
+    {
+        return 14;
+    }
+    else if (i == 7 || i == 15 || i == 33 || i == 51 || i == 83 || i == 115)
+    {
+        return 15;
+    }
+    else if (i == 8 || i == 16 || i == 34 || i == 52 || i == 84 || i == 116)
+    {
+        return 16;
+    }
+    else if (i == 9 || i == 17 || i == 35 || i == 53 || i == 85 || i == 117)
+    {
+        return 17;
+    }
+    else if (i == 2 || i == 10 || i == 18 || i == 36 || i == 54 || i == 86 || i == 118)
+    {
+        return 18;
+    }
+    else if (i <= 57 && i >= 71)
+    {
+        return 19;
+    }
+    else if (i <= 89 && i >= 103)
+    {
+        return 20;
+    }
+    else
+        return 0;
+}
+
+
 const int numElements = 118;
+const int elementsPerRow = 18;
+const int elementHeight = 60;
+const int numLanthanoids = 14;
+const int numActinoids = 14;
+std::string elementInfo;
 
 Element elements[numElements] = {
     {"H", "Hydrogen", 1, 1.008, {1}, 2.20, -259.1, -252.9, 1766}, {"He", "Helium", 2, 4.002602, {2}, NULL, NULL, -269, 1895}, {"Li", "Lithium", 3, 6.94, {2,1}, 0.98, 180.54, 1342, 1817}, {"Be", "Beryllium", 4, 9.0121831, {2,2}, 1.57, 1287, 2470, 1797}, {"B", "Boron", 5, 10.81, {2,3}, 2.04, 2075, 4000, 1808},
@@ -43,29 +158,42 @@ Element elements[numElements] = {
     {"Mc","Moscovium", 115, 290, {2,8,18,32,32,18,5}, NULL, NULL, NULL, 2004}, {"Lv", "Livermorium", 116, 293, {2,8,18,32,32,18,6}, NULL , NULL, NULL, 2000}, {"Ts", "Tennessine", 117, 294, {2,8,18,32,32,18,7}, NULL, NULL, NULL, 2010}, {"Og", "Oganesson", 118, 294, {2,8,18,32,32,18,8}, NULL, NULL, NULL , 2006}
 };
 
-std::string test = elements[7].name;
-    
-int main()
-{
-    sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
+int main() {
+    sf::RenderWindow window(sf::VideoMode(800, 600), "Periodic Table");
+    const int elementWidth = window.getSize().x / elementsPerRow;
+
+    for (int i = 0; i < 118; i++) {
+        elements[i].period = getPeriod(i + 1);
+        elements[i].group = getGroup(i + 1);
+    }
     sf::Font font;
     if (!font.loadFromFile("resources/fonts/arial.ttf")) {
-        // Handle font loading error
         return 1;
     }
-    sf::Text testText("", font, 20);
-    testText.setString(test);
-    while (window.isOpen())
-    {
+    while (window.isOpen()) {
         sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
                 window.close();
+            }
         }
-        testText.setString(test);
+        sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
         window.clear();
-        window.draw(testText);
+
+        for (int i = 0; i < 118; i++) {
+            int row = elements[i].period - 1;
+            int col = elements[i].group - 1;
+            sf::RectangleShape block(sf::Vector2f(elementWidth, elementHeight));
+            block.setFillColor(sf::Color::Blue);
+            block.setPosition(col * elementWidth, row * elementHeight);
+
+            sf::Text text("", font, 20);
+            text.setString(elements[i].symbol);
+            text.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
+            sf::FloatRect elementBounds(block.getPosition(), block.getSize());
+            window.draw(block);
+            window.draw(text);
+        }
         window.display();
     }
 
