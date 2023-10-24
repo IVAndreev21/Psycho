@@ -131,6 +131,7 @@ const int numLanthanoids = 14;
 const int numActinoids = 14;
 std::string elementInfo;
 
+
 Element elements[numElements] = {
     {"H", "Hydrogen", 1, 1.008, {1}, 2.20, -259.1, -252.9, 1766}, {"He", "Helium", 2, 4.002602, {2}, NULL, NULL, -269, 1895}, {"Li", "Lithium", 3, 6.94, {2,1}, 0.98, 180.54, 1342, 1817}, {"Be", "Beryllium", 4, 9.0121831, {2,2}, 1.57, 1287, 2470, 1797}, {"B", "Boron", 5, 10.81, {2,3}, 2.04, 2075, 4000, 1808},
     {"C","Carbon", 6, 12.011, {2,4}, 2.55, 3642, 3642, 3750}, {"N", "Nitrogen", 7, 14.007, {2,5}, 3.04, -210.1, -195.8, 1772}, {"O", "Oxygen", 8, 15.999, {2,6}, 3.44, -218, -183, 1774}, {"F", "Fluorine", 9, 18.998403162, {2,7}, 3.98, -220, -188.1, 1879}, {"Ne", "Neon", 10, 20.1797, {2,8}, NULL, -248.6, -246.1, 1898},
@@ -158,9 +159,45 @@ Element elements[numElements] = {
     {"Mc","Moscovium", 115, 290, {2,8,18,32,32,18,5}, NULL, NULL, NULL, 2004}, {"Lv", "Livermorium", 116, 293, {2,8,18,32,32,18,6}, NULL , NULL, NULL, 2000}, {"Ts", "Tennessine", 117, 294, {2,8,18,32,32,18,7}, NULL, NULL, NULL, 2010}, {"Og", "Oganesson", 118, 294, {2,8,18,32,32,18,8}, NULL, NULL, NULL , 2006}
 };
 
+
+//Non Metals
+const std::vector<int> reactiveNonMetals = { elements[-2].atomicNumber, elements[4].atomicNumber, elements[5].atomicNumber, elements[6].atomicNumber, elements[7].atomicNumber, elements[13].atomicNumber, elements[14].atomicNumber, elements[15].atomicNumber, elements[32].atomicNumber, elements[33].atomicNumber, elements[51].atomicNumber };
+const std::vector<int> nobleGases = { elements[0].atomicNumber, elements[8].atomicNumber, elements[16].atomicNumber, elements[34].atomicNumber, elements[52].atomicNumber, elements[84].atomicNumber };
+
+//Metaloids
+const std::vector<int> metalloids = { elements[3].atomicNumber, elements[12].atomicNumber, elements[30].atomicNumber, elements[31].atomicNumber, elements[49].atomicNumber, elements[50].atomicNumber, elements[83].atomicNumber };
+
+//Metals
+const std::vector<int> postTransitionMetals = { elements[11].atomicNumber,elements[29].atomicNumber, elements[47].atomicNumber, elements[48].atomicNumber, elements[79].atomicNumber, elements[80].atomicNumber, elements[81].atomicNumber, elements[82].atomicNumber };
+std::vector<int> transitionMetals;
+const std::vector<int> allkalineEarthMetals = { elements[2].atomicNumber, elements[10].atomicNumber, elements[18].atomicNumber, elements[36].atomicNumber, elements[54].atomicNumber, elements[86].atomicNumber };
+const std::vector<int> allkaliMetals = { elements[1].atomicNumber, elements[9].atomicNumber, elements[17].atomicNumber, elements[35].atomicNumber, elements[53].atomicNumber, elements[85].atomicNumber };
+const std::vector<int> unknown = { elements[107].atomicNumber, elements[108].atomicNumber, elements[109].atomicNumber, elements[110].atomicNumber, elements[111].atomicNumber, elements[112].atomicNumber, elements[113].atomicNumber , elements[114].atomicNumber , elements[115].atomicNumber , elements[116].atomicNumber };
+
+
+
 int main() {
     sf::RenderWindow window(sf::VideoMode(800, 600), "Periodic Table");
     const int elementWidth = window.getSize().x / elementsPerRow;
+
+
+    for (int i = 19; i <= 28; i++)
+    {
+        transitionMetals.push_back(elements[i].atomicNumber);
+    }
+    for (int i = 37; i <= 46; i++)
+    {
+        transitionMetals.push_back(elements[i].atomicNumber);
+    }
+    for (int i = 70; i <= 78; i++)
+    {
+        transitionMetals.push_back(elements[i].atomicNumber);
+    }
+    for (int i = 102; i <= 106; i++)
+    {
+        transitionMetals.push_back(elements[i].atomicNumber);
+    }
+
 
     for (int i = 0; i < 118; i++) {
         elements[i].period = getPeriod(i + 1);
@@ -188,14 +225,22 @@ int main() {
             block.setPosition(col * elementWidth, row * elementHeight);
 
             sf::Text text("", font, 20);
+            sf::Text info("", font, 20);
             text.setString(elements[i].symbol);
             text.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
             sf::FloatRect elementBounds(block.getPosition(), block.getSize());
+            if (elementBounds.contains(static_cast<sf::Vector2f>(mousePosition))) {
+
+                block.setFillColor(sf::Color::Red);
+                elementInfo = std::to_string(elements[i].atomicNumber) + "\n" + elements[i].name;
+                info.setString(elementInfo);
+            }
             window.draw(block);
             window.draw(text);
+            window.draw(info);
         }
         window.display();
     }
 
     return 0;
-}
+}   
