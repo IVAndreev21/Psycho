@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <iomanip>
+#include "slider.h"
 #include <sstream>
 struct Element {
     std::string symbol;
@@ -197,6 +198,13 @@ int main() {
         transitionMetals.push_back(elements[i].atomicNumber);
     }
 
+
+    Slider slider1(120, 105);
+
+    slider1.create(-273, 5721);
+    slider1.setSliderValue(235);
+
+
     // Define colors for different groups
     sf::Color reactiveNonMetalsColor(97, 130, 100);
     sf::Color nobleGasesColor(217, 136, 185);
@@ -291,6 +299,7 @@ int main() {
                 window.draw(zoomView);
 
             }
+            slider1.draw(window);
             window.draw(block);
             window.draw(text);
             window.draw(details);
