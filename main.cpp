@@ -11,6 +11,7 @@ struct Element {
     int yearDiscovery;
     int group;
     int period;
+    sf::Color color;
 };
 
 int getPeriod(int atomicNumber) {
@@ -199,6 +200,49 @@ int main() {
     }
 
 
+    // Define colors for different groups
+    sf::Color reactiveNonMetalsColor(97, 130, 100);
+    sf::Color nobleGasesColor(217, 136, 185);
+    sf::Color metalloidsColor(53, 162, 159);
+    sf::Color postTransitionMetalsColor(137, 207, 243);
+    sf::Color transitionMetalsColor(249, 155, 125);
+    sf::Color allkalineEarthMetalsColor(233, 184, 36);
+    sf::Color allkaliMetalsColor(238, 147, 34);
+    sf::Color unknownColor(208, 212, 202);
+
+
+    for (int atomicNumber : reactiveNonMetals) {
+        elements[atomicNumber].color = reactiveNonMetalsColor;
+    }
+
+    for (int atomicNumber : nobleGases) {
+        elements[atomicNumber].color = nobleGasesColor;
+    }
+        
+    for (int atomicNumber : metalloids) {
+        elements[atomicNumber].color = metalloidsColor;
+    }
+
+    for (int atomicNumber : postTransitionMetals) {
+        elements[atomicNumber].color = postTransitionMetalsColor;
+    }
+
+    for (int atomicNumber : transitionMetals) {
+        elements[atomicNumber].color = transitionMetalsColor;
+    }
+
+    for (int atomicNumber : allkalineEarthMetals) {
+        elements[atomicNumber].color = allkalineEarthMetalsColor;
+    }
+
+    for (int atomicNumber : allkaliMetals) {
+        elements[atomicNumber].color = allkaliMetalsColor;
+    }
+    for (int atomicNumber : unknown) {
+        elements[atomicNumber].color = unknownColor;
+    }
+
+
     for (int i = 0; i < 118; i++) {
         elements[i].period = getPeriod(i + 1);
         elements[i].group = getGroup(i + 1);
@@ -215,7 +259,7 @@ int main() {
             }
         }
         sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
-        window.clear();
+        window.clear(sf::Color::White);
 
         for (int i = 0; i < 118; i++) {
             int row = elements[i].period - 1;
@@ -229,6 +273,7 @@ int main() {
             text.setString(elements[i].symbol);
             text.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
             sf::FloatRect elementBounds(block.getPosition(), block.getSize());
+            block.setFillColor(elements[i].color);
             if (elementBounds.contains(static_cast<sf::Vector2f>(mousePosition))) {
 
                 block.setFillColor(sf::Color::Red);
