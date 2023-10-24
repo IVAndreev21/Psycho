@@ -1,4 +1,7 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
+#include <iomanip>
+#include <sstream>
 struct Element {
     std::string symbol;
     std::string name;
@@ -120,8 +123,6 @@ int getGroup(int i) {
     {
         return 20;
     }
-    else
-        return 0;
 }
 
 
@@ -130,8 +131,7 @@ const int elementsPerRow = 18;
 const int elementHeight = 60;
 const int numLanthanoids = 14;
 const int numActinoids = 14;
-std::string elementInfo;
-
+const float gap = 1;
 
 Element elements[numElements] = {
     {"H", "Hydrogen", 1, 1.008, {1}, 2.20, -259.1, -252.9, 1766}, {"He", "Helium", 2, 4.002602, {2}, NULL, NULL, -269, 1895}, {"Li", "Lithium", 3, 6.94, {2,1}, 0.98, 180.54, 1342, 1817}, {"Be", "Beryllium", 4, 9.0121831, {2,2}, 1.57, 1287, 2470, 1797}, {"B", "Boron", 5, 10.81, {2,3}, 2.04, 2075, 4000, 1808},
@@ -160,7 +160,6 @@ Element elements[numElements] = {
     {"Mc","Moscovium", 115, 290, {2,8,18,32,32,18,5}, NULL, NULL, NULL, 2004}, {"Lv", "Livermorium", 116, 293, {2,8,18,32,32,18,6}, NULL , NULL, NULL, 2000}, {"Ts", "Tennessine", 117, 294, {2,8,18,32,32,18,7}, NULL, NULL, NULL, 2010}, {"Og", "Oganesson", 118, 294, {2,8,18,32,32,18,8}, NULL, NULL, NULL , 2006}
 };
 
-
 //Non Metals
 const std::vector<int> reactiveNonMetals = { elements[-2].atomicNumber, elements[4].atomicNumber, elements[5].atomicNumber, elements[6].atomicNumber, elements[7].atomicNumber, elements[13].atomicNumber, elements[14].atomicNumber, elements[15].atomicNumber, elements[32].atomicNumber, elements[33].atomicNumber, elements[51].atomicNumber };
 const std::vector<int> nobleGases = { elements[0].atomicNumber, elements[8].atomicNumber, elements[16].atomicNumber, elements[34].atomicNumber, elements[52].atomicNumber, elements[84].atomicNumber };
@@ -176,11 +175,10 @@ const std::vector<int> allkaliMetals = { elements[1].atomicNumber, elements[9].a
 const std::vector<int> unknown = { elements[107].atomicNumber, elements[108].atomicNumber, elements[109].atomicNumber, elements[110].atomicNumber, elements[111].atomicNumber, elements[112].atomicNumber, elements[113].atomicNumber , elements[114].atomicNumber , elements[115].atomicNumber , elements[116].atomicNumber };
 
 
-
 int main() {
-    sf::RenderWindow window(sf::VideoMode(800, 600), "Periodic Table");
-    const int elementWidth = window.getSize().x / elementsPerRow;
-
+    sf::RenderWindow window(sf::VideoMode(1280, 1024), "Periodic Table");
+    const int elementWidth = (window.getSize().x - 300) / elementsPerRow;
+    //Set transition metals
 
     for (int i = 19; i <= 28; i++)
     {
@@ -198,7 +196,6 @@ int main() {
     {
         transitionMetals.push_back(elements[i].atomicNumber);
     }
-
 
     // Define colors for different groups
     sf::Color reactiveNonMetalsColor(97, 130, 100);
@@ -218,7 +215,7 @@ int main() {
     for (int atomicNumber : nobleGases) {
         elements[atomicNumber].color = nobleGasesColor;
     }
-        
+
     for (int atomicNumber : metalloids) {
         elements[atomicNumber].color = metalloidsColor;
     }
@@ -243,7 +240,7 @@ int main() {
     }
 
 
-    for (int i = 0; i < 118; i++) {
+    for (int i = 0; i < numElements; i++) {
         elements[i].period = getPeriod(i + 1);
         elements[i].group = getGroup(i + 1);
     }
@@ -259,33 +256,81 @@ int main() {
             }
         }
         sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+
         window.clear(sf::Color::White);
 
-        for (int i = 0; i < 118; i++) {
+        for (int i = 0; i < numElements; i++) {
             int row = elements[i].period - 1;
             int col = elements[i].group - 1;
+
             sf::RectangleShape block(sf::Vector2f(elementWidth, elementHeight));
-            block.setFillColor(sf::Color::Blue);
-            block.setPosition(col * elementWidth, row * elementHeight);
+            sf::RectangleShape detailedView(sf::Vector2f(200, 200));
+
+            block.setPosition(col * (elementWidth + gap), row * (elementHeight + gap) + 200); // Add an offset based on the gap.
+            detailedView.setPosition(sf::Vector2f(1030.f, 100.f));
+
 
             sf::Text text("", font, 20);
-            sf::Text info("", font, 20);
+            sf::Text details("", font, 20);
+            sf::Text zoomView("", font, 35);
+            zoomView.setFillColor(sf::Color::Black);
+            details.setFillColor(sf::Color::Black);
+            std::string zoomstr = std::to_string(elements[i].atomicNumber) + "\n" + elements[i].symbol + "\n" + elements[i].name + "\n" + std::to_string(elements[i].weight);
+            zoomView.setString(zoomstr);
+            zoomView.setPosition(detailedView.getPosition().x + 5, detailedView.getPosition().y + 10);
             text.setString(elements[i].symbol);
             text.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
             sf::FloatRect elementBounds(block.getPosition(), block.getSize());
             block.setFillColor(elements[i].color);
+            detailedView.setFillColor(elements[i].color);
             if (elementBounds.contains(static_cast<sf::Vector2f>(mousePosition))) {
 
                 block.setFillColor(sf::Color::Red);
-                elementInfo = std::to_string(elements[i].atomicNumber) + "\n" + elements[i].name;
-                info.setString(elementInfo);
+
+                window.draw(detailedView);
+                window.draw(zoomView);
+
             }
             window.draw(block);
             window.draw(text);
-            window.draw(info);
+            window.draw(details);
+
         }
         window.display();
     }
-
     return 0;
-}   
+}
+
+
+
+/*
+for (int i = 0; i < numLanthanoids; i++) {
+    int col = i + 3; // Adjust the column to position the Lanthanoids
+    sf::RectangleShape block(sf::Vector2f(elementWidth, elementHeight));
+    block.setFillColor(sf::Color::Blue);
+    block.setPosition(col * elementWidth, 7 * elementHeight); // Position below the main table
+
+    // Draw the element symbol
+    sf::Text text("", font, 20);
+    text.setString(elements[57 + i].symbol); // Start from atomic number 57 (La)
+    text.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
+
+    window.draw(block);
+    window.draw(text);
+}
+// Draw the Actinoid series (below the Lanthanoids)
+for (int i = 0; i < numActinoids; i++) {
+    int col = i + 3; // Adjust the column to position the Actinoids
+    sf::RectangleShape block(sf::Vector2f(elementWidth, elementHeight));
+    block.setFillColor(sf::Color::Blue);
+    block.setPosition(col * elementWidth, 8 * elementHeight); // Position below the Lanthanoids
+
+    // Draw the element symbol
+    sf::Text text("", font, 20);
+    text.setString(elements[89 + i].symbol); // Start from atomic number 89 (Ac)
+    text.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
+
+    window.draw(block);
+    window.draw(text);
+}
+*/
