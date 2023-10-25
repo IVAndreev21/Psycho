@@ -16,6 +16,8 @@ struct Element {
     int group;
     int period;
     sf::Color color;
+    std::string state;
+    std::string series;
 };
 
 int getPeriod(int atomicNumber) {
@@ -178,7 +180,7 @@ const std::vector<int> unknown = { elements[107].atomicNumber, elements[108].ato
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(1280, 1024), "Periodic Table");
-    const int elementWidth = (window.getSize().x - 300) / elementsPerRow;
+    const int elementWidth = (window.getSize().x - 330) / elementsPerRow;
     //Set transition metals
 
     for (int i = 19; i <= 28; i++)
@@ -203,7 +205,7 @@ int main() {
 
     slider1.create(-273, 5721);
     slider1.setSliderValue(235);
-
+    int value;
 
     // Define colors for different groups
     sf::Color reactiveNonMetalsColor(97, 130, 100);
@@ -218,33 +220,41 @@ int main() {
 
     for (int atomicNumber : reactiveNonMetals) {
         elements[atomicNumber].color = reactiveNonMetalsColor;
+        elements[atomicNumber].series = "Reactive nonmetals";
     }
 
     for (int atomicNumber : nobleGases) {
         elements[atomicNumber].color = nobleGasesColor;
+        elements[atomicNumber].series = "Noble gases";
     }
 
     for (int atomicNumber : metalloids) {
         elements[atomicNumber].color = metalloidsColor;
+        elements[atomicNumber].series = "Metalloids";
     }
 
     for (int atomicNumber : postTransitionMetals) {
         elements[atomicNumber].color = postTransitionMetalsColor;
+        elements[atomicNumber].series = "Post-transition metals";
     }
 
     for (int atomicNumber : transitionMetals) {
         elements[atomicNumber].color = transitionMetalsColor;
+        elements[atomicNumber].series = "Transition metals";
     }
 
     for (int atomicNumber : allkalineEarthMetals) {
         elements[atomicNumber].color = allkalineEarthMetalsColor;
+        elements[atomicNumber].series = "Allkaline earth metals";
     }
 
     for (int atomicNumber : allkaliMetals) {
         elements[atomicNumber].color = allkaliMetalsColor;
+        elements[atomicNumber].series = "Allkali metals";
     }
     for (int atomicNumber : unknown) {
         elements[atomicNumber].color = unknownColor;
+        elements[atomicNumber].series = "Unknown";
     }
 
 
@@ -263,47 +273,86 @@ int main() {
                 window.close();
             }
         }
+
+        value = slider1.getSliderValue();
         sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
 
         window.clear(sf::Color::White);
 
         for (int i = 0; i < numElements; i++) {
+
             int row = elements[i].period - 1;
             int col = elements[i].group - 1;
 
             sf::RectangleShape block(sf::Vector2f(elementWidth, elementHeight));
-            sf::RectangleShape detailedView(sf::Vector2f(200, 200));
+            sf::RectangleShape detailedView(sf::Vector2f(180, 180));
+            sf::RectangleShape infoView(sf::Vector2f(250, 500));
 
             block.setPosition(col * (elementWidth + gap), row * (elementHeight + gap) + 200); // Add an offset based on the gap.
             detailedView.setPosition(sf::Vector2f(1030.f, 100.f));
+            infoView.setPosition(sf::Vector2f(995.f, 290.f));
+
+            sf::Color grey(208, 212, 202);
+            infoView.setFillColor(grey);
+
 
 
             sf::Text text("", font, 20);
-            sf::Text details("", font, 20);
-            sf::Text zoomView("", font, 35);
-            zoomView.setFillColor(sf::Color::Black);
-            details.setFillColor(sf::Color::Black);
+            sf::Text zoomViewText("", font, 35);
+            sf::Text test("", font, 18);
+            test.setFillColor(sf::Color::Black);
+            test.setPosition(1010, 295);
+
+            zoomViewText.setFillColor(sf::Color::Black);
             std::string zoomstr = std::to_string(elements[i].atomicNumber) + "\n" + elements[i].symbol + "\n" + elements[i].name + "\n" + std::to_string(elements[i].weight);
-            zoomView.setString(zoomstr);
-            zoomView.setPosition(detailedView.getPosition().x + 5, detailedView.getPosition().y + 10);
+            zoomViewText.setString(zoomstr);
+            zoomViewText.setPosition(detailedView.getPosition().x + 5, detailedView.getPosition().y + 10);
             text.setString(elements[i].symbol);
             text.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
             sf::FloatRect elementBounds(block.getPosition(), block.getSize());
             block.setFillColor(elements[i].color);
             detailedView.setFillColor(elements[i].color);
+
+
+            if (value <= elements[i].meltingPoint)
+            {
+                elements[i].state = "Solid";
+            }
+            if (value >= elements[i].meltingPoint)
+            {
+                elements[i].state = "Liquid";
+            }
+            if (value >= elements[i].boilingPoint)
+            {
+                elements[i].state = "Gas";
+            }
+            std::string infoViewText = "Series\t" + elements[i].series +
+                "\n\n\nState at    " + std::to_string(value) + "°C\t" + elements[i].state +
+                "\n\n\nWeight\t" + std::to_string(elements[i].weight) +
+                "\n\n\nEnergy levels\t";
+            int energyLevels = elements[i].energyLevels.size();
+
+            for (int j = 0; j < energyLevels; j++)
+            {
+                infoViewText += std::to_string(elements[i].energyLevels[j]) + " ";
+            }
+            infoViewText += "\n\n\nElectronegativity \t" + std::to_string(elements[i].electronegativity) + "\n\n\nMelting point\t" + std::to_string(elements[i].meltingPoint) + "\n\n\nBoiling point\t" + std::to_string(elements[i].boilingPoint) + "\n\n\nDiscovered\t" + std::to_string(elements[i].yearDiscovery);
+
+            test.setString(infoViewText);
+
             if (elementBounds.contains(static_cast<sf::Vector2f>(mousePosition))) {
 
                 block.setFillColor(sf::Color::Red);
 
                 window.draw(detailedView);
-                window.draw(zoomView);
+                window.draw(zoomViewText);
+                window.draw(infoView);
+                window.draw(test);
 
             }
             slider1.draw(window);
             window.draw(block);
             window.draw(text);
-            window.draw(details);
-
         }
         window.display();
     }
