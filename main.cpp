@@ -128,7 +128,7 @@ int getGroup(int i) {
     }
 }
 
-
+//Constant variables
 const int numElements = 118;
 const int elementsPerRow = 18;
 const int elementHeight = 60;
@@ -136,6 +136,44 @@ const int numLanthanoids = 14;
 const int numActinoids = 14;
 const float gap = 1;
 
+//Changable values
+int value;
+int energyLevels;
+int row;
+int col;
+
+//Colors
+    // Define colors for different groups
+sf::Color reactiveNonMetalsColor(97, 130, 100);
+sf::Color nobleGasesColor(217, 136, 185);
+sf::Color metalloidsColor(53, 162, 159);
+sf::Color postTransitionMetalsColor(137, 207, 243);
+sf::Color transitionMetalsColor(249, 155, 125);
+sf::Color allkalineEarthMetalsColor(233, 184, 36);
+sf::Color allkaliMetalsColor(238, 147, 34);
+sf::Color unknownColor(208, 212, 202);
+
+sf::Color grey(208, 212, 202);
+sf::Color white = sf::Color::White;
+sf::Color black = sf::Color::Black;
+
+//Fonts
+sf::Font font;
+
+//sf::Texts
+sf::Text text("", font, 20);
+sf::Text zoomViewText("", font, 35);
+sf::Text test("", font, 18);
+//sf::RectangleShapes
+sf::RectangleShape detailedView(sf::Vector2f(180, 180));
+sf::RectangleShape infoView(sf::Vector2f(250, 500));
+sf::RectangleShape block;
+
+//Strings
+std::string zoomstr;
+std::string infoViewText;
+//Integer vectors
+sf::Vector2i mousePosition;
 Element elements[numElements] = {
     {"H", "Hydrogen", 1, 1.008, {1}, 2.20, -259.1, -252.9, 1766}, {"He", "Helium", 2, 4.002602, {2}, NULL, NULL, -269, 1895}, {"Li", "Lithium", 3, 6.94, {2,1}, 0.98, 180.54, 1342, 1817}, {"Be", "Beryllium", 4, 9.0121831, {2,2}, 1.57, 1287, 2470, 1797}, {"B", "Boron", 5, 10.81, {2,3}, 2.04, 2075, 4000, 1808},
     {"C","Carbon", 6, 12.011, {2,4}, 2.55, 3642, 3642, 3750}, {"N", "Nitrogen", 7, 14.007, {2,5}, 3.04, -210.1, -195.8, 1772}, {"O", "Oxygen", 8, 15.999, {2,6}, 3.44, -218, -183, 1774}, {"F", "Fluorine", 9, 18.998403162, {2,7}, 3.98, -220, -188.1, 1879}, {"Ne", "Neon", 10, 20.1797, {2,8}, NULL, -248.6, -246.1, 1898},
@@ -177,7 +215,6 @@ const std::vector<int> allkalineEarthMetals = { elements[2].atomicNumber, elemen
 const std::vector<int> allkaliMetals = { elements[1].atomicNumber, elements[9].atomicNumber, elements[17].atomicNumber, elements[35].atomicNumber, elements[53].atomicNumber, elements[85].atomicNumber };
 const std::vector<int> unknown = { elements[107].atomicNumber, elements[108].atomicNumber, elements[109].atomicNumber, elements[110].atomicNumber, elements[111].atomicNumber, elements[112].atomicNumber, elements[113].atomicNumber , elements[114].atomicNumber , elements[115].atomicNumber , elements[116].atomicNumber };
 
-
 int main() {
     sf::RenderWindow window(sf::VideoMode(1280, 1024), "Periodic Table");
     const int elementWidth = (window.getSize().x - 330) / elementsPerRow;
@@ -205,17 +242,6 @@ int main() {
 
     slider1.create(-273, 5721);
     slider1.setSliderValue(235);
-    int value;
-
-    // Define colors for different groups
-    sf::Color reactiveNonMetalsColor(97, 130, 100);
-    sf::Color nobleGasesColor(217, 136, 185);
-    sf::Color metalloidsColor(53, 162, 159);
-    sf::Color postTransitionMetalsColor(137, 207, 243);
-    sf::Color transitionMetalsColor(249, 155, 125);
-    sf::Color allkalineEarthMetalsColor(233, 184, 36);
-    sf::Color allkaliMetalsColor(238, 147, 34);
-    sf::Color unknownColor(208, 212, 202);
 
 
     for (int atomicNumber : reactiveNonMetals) {
@@ -257,12 +283,10 @@ int main() {
         elements[atomicNumber].series = "Unknown";
     }
 
-
     for (int i = 0; i < numElements; i++) {
         elements[i].period = getPeriod(i + 1);
         elements[i].group = getGroup(i + 1);
     }
-    sf::Font font;
     if (!font.loadFromFile("resources/fonts/arial.ttf")) {
         return 1;
     }
@@ -274,42 +298,40 @@ int main() {
             }
         }
 
+        window.clear(white);
+
         value = slider1.getSliderValue();
-        sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
 
-        window.clear(sf::Color::White);
+        mousePosition = sf::Mouse::getPosition(window);
 
+        block.setSize(sf::Vector2f(elementWidth, elementHeight));
+        detailedView.setPosition(sf::Vector2f(1030.f, 100.f));
+
+        infoView.setPosition(sf::Vector2f(995.f, 290.f));
+        infoView.setFillColor(grey);
+
+        test.setFillColor(black);
+        test.setPosition(1010, 295);
+
+        zoomViewText.setPosition(detailedView.getPosition().x + 5, detailedView.getPosition().y + 10);
+        zoomViewText.setFillColor(black);
         for (int i = 0; i < numElements; i++) {
 
-            int row = elements[i].period - 1;
-            int col = elements[i].group - 1;
-
-            sf::RectangleShape block(sf::Vector2f(elementWidth, elementHeight));
-            sf::RectangleShape detailedView(sf::Vector2f(180, 180));
-            sf::RectangleShape infoView(sf::Vector2f(250, 500));
-
-            block.setPosition(col * (elementWidth + gap), row * (elementHeight + gap) + 200); // Add an offset based on the gap.
-            detailedView.setPosition(sf::Vector2f(1030.f, 100.f));
-            infoView.setPosition(sf::Vector2f(995.f, 290.f));
-
-            sf::Color grey(208, 212, 202);
-            infoView.setFillColor(grey);
+            row = elements[i].period - 1;
+            col = elements[i].group - 1;
 
 
+            block.setPosition(col * (elementWidth + gap), row * (elementHeight + gap) + 200); // Add an offset based on the gap
 
-            sf::Text text("", font, 20);
-            sf::Text zoomViewText("", font, 35);
-            sf::Text test("", font, 18);
-            test.setFillColor(sf::Color::Black);
-            test.setPosition(1010, 295);
-
-            zoomViewText.setFillColor(sf::Color::Black);
-            std::string zoomstr = std::to_string(elements[i].atomicNumber) + "\n" + elements[i].symbol + "\n" + elements[i].name + "\n" + std::to_string(elements[i].weight);
+            
+            zoomstr = std::to_string(elements[i].atomicNumber) + "\n" + elements[i].symbol + "\n" + elements[i].name + "\n" + std::to_string(elements[i].weight);
             zoomViewText.setString(zoomstr);
-            zoomViewText.setPosition(detailedView.getPosition().x + 5, detailedView.getPosition().y + 10);
+
             text.setString(elements[i].symbol);
             text.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
+
             sf::FloatRect elementBounds(block.getPosition(), block.getSize());
+
             block.setFillColor(elements[i].color);
             detailedView.setFillColor(elements[i].color);
 
@@ -326,16 +348,19 @@ int main() {
             {
                 elements[i].state = "Gas";
             }
-            std::string infoViewText = "Series\t" + elements[i].series +
+
+            infoViewText = "Series\t" + elements[i].series +
                 "\n\n\nState at    " + std::to_string(value) + "°C\t" + elements[i].state +
                 "\n\n\nWeight\t" + std::to_string(elements[i].weight) +
                 "\n\n\nEnergy levels\t";
-            int energyLevels = elements[i].energyLevels.size();
+
+            energyLevels = elements[i].energyLevels.size();
 
             for (int j = 0; j < energyLevels; j++)
             {
                 infoViewText += std::to_string(elements[i].energyLevels[j]) + " ";
             }
+
             infoViewText += "\n\n\nElectronegativity \t" + std::to_string(elements[i].electronegativity) + "\n\n\nMelting point\t" + std::to_string(elements[i].meltingPoint) + "\n\n\nBoiling point\t" + std::to_string(elements[i].boilingPoint) + "\n\n\nDiscovered\t" + std::to_string(elements[i].yearDiscovery);
 
             test.setString(infoViewText);
