@@ -15,11 +15,29 @@ struct Element {
     int yearDiscovery;
     int group;
     int period;
-    sf::Color color;
+    sf::Color backgroundColor;
+    sf::Color textColor;
     std::string state;
     std::string series;
 };
 
+
+class Menu {
+    void MenuScreen()
+    {
+        sf::RenderWindow menuWindow(sf::VideoMode(800, 600), "Main Menu");
+
+    }
+    void PeriodicTableScreen()
+    {
+
+    }
+    void Laboratory()
+    {
+
+    }
+public:
+};
 int getPeriod(int atomicNumber) {
     if (atomicNumber >= 1 && atomicNumber <= 2) {
         return 1;
@@ -156,6 +174,8 @@ sf::Color unknownColor(208, 212, 202);
 sf::Color grey(208, 212, 202);
 sf::Color white = sf::Color::White;
 sf::Color black = sf::Color::Black;
+sf::Color blue = sf::Color::Blue;
+sf::Color red = sf::Color::Red;
 
 //Fonts
 sf::Font font;
@@ -164,6 +184,8 @@ sf::Font font;
 sf::Text text("", font, 20);
 sf::Text zoomViewText("", font, 35);
 sf::Text test("", font, 18);
+
+
 //sf::RectangleShapes
 sf::RectangleShape detailedView(sf::Vector2f(180, 180));
 sf::RectangleShape infoView(sf::Vector2f(250, 500));
@@ -172,8 +194,13 @@ sf::RectangleShape block;
 //Strings
 std::string zoomstr;
 std::string infoViewText;
+
+
 //Integer vectors
 sf::Vector2i mousePosition;
+
+//booleans
+bool window2IsOpen = false;
 Element elements[numElements] = {
     {"H", "Hydrogen", 1, 1.008, {1}, 2.20, -259.1, -252.9, 1766}, {"He", "Helium", 2, 4.002602, {2}, NULL, NULL, -269, 1895}, {"Li", "Lithium", 3, 6.94, {2,1}, 0.98, 180.54, 1342, 1817}, {"Be", "Beryllium", 4, 9.0121831, {2,2}, 1.57, 1287, 2470, 1797}, {"B", "Boron", 5, 10.81, {2,3}, 2.04, 2075, 4000, 1808},
     {"C","Carbon", 6, 12.011, {2,4}, 2.55, 3642, 3642, 3750}, {"N", "Nitrogen", 7, 14.007, {2,5}, 3.04, -210.1, -195.8, 1772}, {"O", "Oxygen", 8, 15.999, {2,6}, 3.44, -218, -183, 1774}, {"F", "Fluorine", 9, 18.998403162, {2,7}, 3.98, -220, -188.1, 1879}, {"Ne", "Neon", 10, 20.1797, {2,8}, NULL, -248.6, -246.1, 1898},
@@ -217,9 +244,9 @@ const std::vector<int> unknown = { elements[107].atomicNumber, elements[108].ato
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(1280, 1024), "Periodic Table");
+    sf::RenderWindow window2;
     const int elementWidth = (window.getSize().x - 330) / elementsPerRow;
     //Set transition metals
-
     for (int i = 19; i <= 28; i++)
     {
         transitionMetals.push_back(elements[i].atomicNumber);
@@ -245,41 +272,41 @@ int main() {
 
 
     for (int atomicNumber : reactiveNonMetals) {
-        elements[atomicNumber].color = reactiveNonMetalsColor;
+        elements[atomicNumber].backgroundColor = reactiveNonMetalsColor;
         elements[atomicNumber].series = "Reactive nonmetals";
     }
 
     for (int atomicNumber : nobleGases) {
-        elements[atomicNumber].color = nobleGasesColor;
+        elements[atomicNumber].backgroundColor = nobleGasesColor;
         elements[atomicNumber].series = "Noble gases";
     }
 
     for (int atomicNumber : metalloids) {
-        elements[atomicNumber].color = metalloidsColor;
+        elements[atomicNumber].backgroundColor = metalloidsColor;
         elements[atomicNumber].series = "Metalloids";
     }
 
     for (int atomicNumber : postTransitionMetals) {
-        elements[atomicNumber].color = postTransitionMetalsColor;
+        elements[atomicNumber].backgroundColor = postTransitionMetalsColor;
         elements[atomicNumber].series = "Post-transition metals";
     }
 
     for (int atomicNumber : transitionMetals) {
-        elements[atomicNumber].color = transitionMetalsColor;
+        elements[atomicNumber].backgroundColor = transitionMetalsColor;
         elements[atomicNumber].series = "Transition metals";
     }
 
     for (int atomicNumber : allkalineEarthMetals) {
-        elements[atomicNumber].color = allkalineEarthMetalsColor;
+        elements[atomicNumber].backgroundColor = allkalineEarthMetalsColor;
         elements[atomicNumber].series = "Allkaline earth metals";
     }
 
     for (int atomicNumber : allkaliMetals) {
-        elements[atomicNumber].color = allkaliMetalsColor;
+        elements[atomicNumber].backgroundColor = allkaliMetalsColor;
         elements[atomicNumber].series = "Allkali metals";
     }
     for (int atomicNumber : unknown) {
-        elements[atomicNumber].color = unknownColor;
+        elements[atomicNumber].backgroundColor = unknownColor;
         elements[atomicNumber].series = "Unknown";
     }
 
@@ -292,96 +319,125 @@ int main() {
     }
     while (window.isOpen()) {
         sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
-                window.close();
+        while (window.isOpen()) {
+            sf::Event event;
+            while (window.pollEvent(event)) {
+                if (event.type == sf::Event::Closed) {
+                    window.close();
+                }
+                else if (event.type == sf::Event::KeyPressed) {
+                    if (event.key.code == sf::Keyboard::P) {
+                        if (window2IsOpen) {
+                            window2.close();
+                            window2IsOpen = false;
+                        }
+                        else {
+                            window2.create(sf::VideoMode(1280, 1024), "Periodic Table");
+                            window2IsOpen = true;
+                        }
+                    }
+                }
+            }
+            window.clear(white);
+
+            value = slider1.getSliderValue();
+
+            mousePosition = sf::Mouse::getPosition(window);
+
+            block.setSize(sf::Vector2f(elementWidth, elementHeight));
+            detailedView.setPosition(sf::Vector2f(1030.f, 100.f));
+
+            infoView.setPosition(sf::Vector2f(995.f, 290.f));
+            infoView.setFillColor(grey);
+
+            test.setFillColor(black);
+            test.setPosition(1010, 295);
+
+            zoomViewText.setPosition(detailedView.getPosition().x + 5, detailedView.getPosition().y + 10);
+            zoomViewText.setFillColor(black);
+            for (int i = 0; i < numElements; i++) {
+
+                row = elements[i].period - 1;
+                col = elements[i].group - 1;
+
+
+                block.setPosition(col * (elementWidth + gap), row * (elementHeight + gap) + 200); // Add an offset based on the gap
+
+
+                zoomstr = std::to_string(elements[i].atomicNumber) + "\n" + elements[i].symbol + "\n" + elements[i].name + "\n" + std::to_string(elements[i].weight);
+                zoomViewText.setString(zoomstr);
+
+                text.setString(elements[i].symbol);
+                text.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
+                text.setFillColor(elements[i].textColor);
+
+                sf::FloatRect elementBounds(block.getPosition(), block.getSize());
+
+                block.setFillColor(elements[i].backgroundColor);
+                detailedView.setFillColor(elements[i].backgroundColor);
+
+
+                if (value <= elements[i].meltingPoint)
+                {
+                    elements[i].state = "Solid";
+                    elements[i].textColor = black;
+                }
+                if (value >= elements[i].meltingPoint)
+                {
+                    elements[i].state = "Liquid";
+                    elements[i].textColor = blue;
+                }
+                if (value >= elements[i].boilingPoint)
+                {
+                    elements[i].state = "Gas";
+                    elements[i].textColor = red;
+                }
+
+                infoViewText = "Series\t" + elements[i].series +
+                    "\n\n\nState at    " + std::to_string(value) + "°C\t" + elements[i].state +
+                    "\n\n\nWeight\t" + std::to_string(elements[i].weight) +
+                    "\n\n\nEnergy levels\t";
+
+                energyLevels = elements[i].energyLevels.size();
+
+                for (int j = 0; j < energyLevels; j++)
+                {
+                    infoViewText += std::to_string(elements[i].energyLevels[j]) + " ";
+                }
+
+                infoViewText += "\n\n\nElectronegativity \t" + std::to_string(elements[i].electronegativity) + "\n\n\nMelting point\t" + std::to_string(elements[i].meltingPoint) + "\n\n\nBoiling point\t" + std::to_string(elements[i].boilingPoint) + "\n\n\nDiscovered\t" + std::to_string(elements[i].yearDiscovery);
+
+                test.setString(infoViewText);
+
+                if (elementBounds.contains(static_cast<sf::Vector2f>(mousePosition))) {
+
+                    block.setOutlineThickness(1);
+                    block.setOutlineColor(blue);
+
+
+                    window.draw(detailedView);
+                    window.draw(zoomViewText);
+                    window.draw(infoView);
+                    window.draw(test);
+
+                }
+                else {
+                    block.setFillColor(elements[i].backgroundColor);
+                    block.setOutlineThickness(0);
+                }
+                slider1.draw(window);
+                window.draw(block);
+                window.draw(text);
+            }
+            window.display();
+            if (window2IsOpen)
+            {
+                window2.clear(white);
+                window2.display();
             }
         }
-
-        window.clear(white);
-
-        value = slider1.getSliderValue();
-
-        mousePosition = sf::Mouse::getPosition(window);
-
-        block.setSize(sf::Vector2f(elementWidth, elementHeight));
-        detailedView.setPosition(sf::Vector2f(1030.f, 100.f));
-
-        infoView.setPosition(sf::Vector2f(995.f, 290.f));
-        infoView.setFillColor(grey);
-
-        test.setFillColor(black);
-        test.setPosition(1010, 295);
-
-        zoomViewText.setPosition(detailedView.getPosition().x + 5, detailedView.getPosition().y + 10);
-        zoomViewText.setFillColor(black);
-        for (int i = 0; i < numElements; i++) {
-
-            row = elements[i].period - 1;
-            col = elements[i].group - 1;
-
-
-            block.setPosition(col * (elementWidth + gap), row * (elementHeight + gap) + 200); // Add an offset based on the gap
-
-            
-            zoomstr = std::to_string(elements[i].atomicNumber) + "\n" + elements[i].symbol + "\n" + elements[i].name + "\n" + std::to_string(elements[i].weight);
-            zoomViewText.setString(zoomstr);
-
-            text.setString(elements[i].symbol);
-            text.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
-
-            sf::FloatRect elementBounds(block.getPosition(), block.getSize());
-
-            block.setFillColor(elements[i].color);
-            detailedView.setFillColor(elements[i].color);
-
-
-            if (value <= elements[i].meltingPoint)
-            {
-                elements[i].state = "Solid";
-            }
-            if (value >= elements[i].meltingPoint)
-            {
-                elements[i].state = "Liquid";
-            }
-            if (value >= elements[i].boilingPoint)
-            {
-                elements[i].state = "Gas";
-            }
-
-            infoViewText = "Series\t" + elements[i].series +
-                "\n\n\nState at    " + std::to_string(value) + "°C\t" + elements[i].state +
-                "\n\n\nWeight\t" + std::to_string(elements[i].weight) +
-                "\n\n\nEnergy levels\t";
-
-            energyLevels = elements[i].energyLevels.size();
-
-            for (int j = 0; j < energyLevels; j++)
-            {
-                infoViewText += std::to_string(elements[i].energyLevels[j]) + " ";
-            }
-
-            infoViewText += "\n\n\nElectronegativity \t" + std::to_string(elements[i].electronegativity) + "\n\n\nMelting point\t" + std::to_string(elements[i].meltingPoint) + "\n\n\nBoiling point\t" + std::to_string(elements[i].boilingPoint) + "\n\n\nDiscovered\t" + std::to_string(elements[i].yearDiscovery);
-
-            test.setString(infoViewText);
-
-            if (elementBounds.contains(static_cast<sf::Vector2f>(mousePosition))) {
-
-                block.setFillColor(sf::Color::Red);
-
-                window.draw(detailedView);
-                window.draw(zoomViewText);
-                window.draw(infoView);
-                window.draw(test);
-
-            }
-            slider1.draw(window);
-            window.draw(block);
-            window.draw(text);
-        }
-        window.display();
+        return 0;
     }
-    return 0;
 }
 
 
