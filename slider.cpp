@@ -92,7 +92,7 @@ void Slider::draw(sf::RenderWindow& window)
 	logic(window);
 	window.draw(axis);
 	window.draw(slider);
-	window.draw(returnText(850, 95, std::to_string((int)sliderValue), 15));
-	window.draw(returnText(900, 95, std::to_string(Fahrenheit), 15));
-	window.draw(returnText(950, 95, std::to_string(kelvin), 15));
+	window.draw(returnText(850, 95, std::to_string((int)sliderValue) + "°C", 15));
+	window.draw(returnText(900, 95, std::to_string(Fahrenheit) + "°F", 15));
+	window.draw(returnText(950, 95, std::to_string(kelvin) + "K", 15));
 }
