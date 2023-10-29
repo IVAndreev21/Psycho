@@ -158,6 +158,8 @@ sf::Color white = sf::Color::White;
 sf::Color black = sf::Color::Black;
 sf::Color blue = sf::Color::Blue;
 sf::Color red = sf::Color::Red;
+sf::Color darkGrey(169, 169, 169);
+
 
 //Fonts
 sf::Font font;
@@ -166,12 +168,19 @@ sf::Font font;
 sf::Text text("", font, 20);
 sf::Text zoomViewText("", font, 35);
 sf::Text test("", font, 18);
-
+sf::Text sbText("", font, 30);
+sf::Text qmText("", font, 30);
+sf::Text optionsText("", font, 30);
+sf::Text mainMenuH("", font, 40);
 
 //sf::RectangleShapes
 sf::RectangleShape detailedView(sf::Vector2f(180, 180));
 sf::RectangleShape infoView(sf::Vector2f(250, 500));
 sf::RectangleShape block;
+//Menu
+sf::RectangleShape sandboxModeButton;
+sf::RectangleShape questModeButton;
+sf::RectangleShape optionsButton;
 
 //Strings
 std::string zoomstr;
@@ -183,16 +192,23 @@ sf::Vector2i mousePosition;
 
 //booleans
 bool window2IsOpen = false;
+bool sandboxIsOpen = false;
+bool questModeIsOpen = false;
+bool optionsIsOpen = false;
+
 
 //sf::textures
-sf::Texture menuTexture;
+sf::Texture logoTexture;
+sf::Texture carbonTexture;
 
 //sf::sprites
-sf::Sprite menuIcon;
+sf::Sprite logoSprite;
+sf::Sprite carbonSprite;
 
 //sf::RenderWindows
 sf::RenderWindow periodicTableWindow;
 sf::RenderWindow simulatorWindow;
+sf::RenderWindow mainMenuWindow;
 Element elements[numElements] = {
     {"H", "Hydrogen", 1, 1.008, {1}, 2.20, -259.1, -252.9, 1766}, {"He", "Helium", 2, 4.002602, {2}, NULL, NULL, -269, 1895}, {"Li", "Lithium", 3, 6.94, {2,1}, 0.98, 180.54, 1342, 1817}, {"Be", "Beryllium", 4, 9.0121831, {2,2}, 1.57, 1287, 2470, 1797}, {"B", "Boron", 5, 10.81, {2,3}, 2.04, 2075, 4000, 1808},
     {"C","Carbon", 6, 12.011, {2,4}, 2.55, 3642, 3642, 3750}, {"N", "Nitrogen", 7, 14.007, {2,5}, 3.04, -210.1, -195.8, 1772}, {"O", "Oxygen", 8, 15.999, {2,6}, 3.44, -218, -183, 1774}, {"F", "Fluorine", 9, 18.998403162, {2,7}, 3.98, -220, -188.1, 1879}, {"Ne", "Neon", 10, 20.1797, {2,8}, NULL, -248.6, -246.1, 1898},
@@ -235,7 +251,130 @@ const std::vector<int> allkaliMetals = { elements[1].atomicNumber, elements[9].a
 const std::vector<int> unknown = { elements[107].atomicNumber, elements[108].atomicNumber, elements[109].atomicNumber, elements[110].atomicNumber, elements[111].atomicNumber, elements[112].atomicNumber, elements[113].atomicNumber , elements[114].atomicNumber , elements[115].atomicNumber , elements[116].atomicNumber };
 
 int main() {
-    periodicTableWindow.create(sf::VideoMode(1280, 1024), "Periodic Table");
+    mainMenuWindow.create(sf::VideoMode(1280, 1024), "Psycho");
+
+    sandboxModeButton.setPosition(sf::Vector2f(50, 350.0f));
+    sandboxModeButton.setSize(sf::Vector2f(450.0f, 150.0f));
+
+    questModeButton.setPosition(sf::Vector2f(50.0f, 550.0f));
+    questModeButton.setSize(sf::Vector2f(450.0f, 150.0f));
+
+
+    optionsButton.setPosition(50.0f, 750.0f);
+    optionsButton.setSize(sf::Vector2f(450.0f, 150.0f));
+
+    mainMenuH.setString("Psycho");
+    mainMenuH.setPosition(mainMenuWindow.getSize().x / 2, 10);
+    mainMenuH.setFillColor(black);
+
+    sbText.setString("Sandbox mode");
+    sbText.setPosition(sandboxModeButton.getPosition().x + 120, sandboxModeButton.getPosition().y + 60);
+    sbText.setFillColor(black);
+
+    qmText.setString("Quest mode");
+    qmText.setPosition(questModeButton.getPosition().x + 120, questModeButton.getPosition().y + 60);
+    qmText.setFillColor(black);
+
+    optionsText.setString("Options");
+    optionsText.setPosition(optionsButton.getPosition().x + 120, optionsButton.getPosition().y + 60);
+    optionsText.setFillColor(black);
+
+    if (!font.loadFromFile("resources/fonts/arial.ttf")) {
+        return 1;
+    }
+
+    if (!logoTexture.loadFromFile("resources/images/logo.png"))
+    {
+        return 1;
+    }
+
+    if (!carbonTexture.loadFromFile("resources/images/carbon.png"))
+    {
+        return 1;
+    }
+    logoSprite.setTexture(logoTexture);
+    logoSprite.setPosition(sandboxModeButton.getPosition().x + 50, sandboxModeButton.getPosition().y - 300);
+    logoSprite.setScale(0.25, 0.25);
+
+    carbonTexture.setSmooth(true);
+    carbonSprite.setTexture(carbonTexture);
+    carbonSprite.setPosition(mainMenuWindow.getSize().x / 2 + 100, mainMenuWindow.getSize().y / 2 - 200);
+    carbonSprite.setScale(1.5f, 1.5f);
+
+    while (mainMenuWindow.isOpen())
+    {
+        sf::Event event;
+        while (mainMenuWindow.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+                mainMenuWindow.close();
+
+
+            mousePosition = sf::Mouse::getPosition(mainMenuWindow);
+
+            //Sandbox button
+            if (sandboxModeButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y))
+            {
+                sandboxModeButton.setFillColor(red);
+                if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+                {
+                    mainMenuWindow.close();
+                    sandboxIsOpen = true;
+                }
+            }
+            else
+            {
+                sandboxModeButton.setFillColor(darkGrey);
+
+            }
+
+            //Quest mode button
+            if (questModeButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y))
+            {
+                questModeButton.setFillColor(red);
+                if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+                {
+                    mainMenuWindow.close();
+                    questModeIsOpen = true;
+                }
+            }
+            else
+            {
+                questModeButton.setFillColor(darkGrey);
+
+            }
+
+            if (optionsButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y))
+            {
+                optionsButton.setFillColor(red);
+                if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+                {
+                    mainMenuWindow.close();
+                    optionsIsOpen = true;
+                }
+            }
+            else
+            {
+                optionsButton.setFillColor(darkGrey);
+
+            }
+        }
+        mainMenuWindow.clear(white);
+        mainMenuWindow.draw(mainMenuH);
+        mainMenuWindow.draw(sandboxModeButton);
+        mainMenuWindow.draw(questModeButton);
+        mainMenuWindow.draw(optionsButton);
+        mainMenuWindow.draw(sbText);
+        mainMenuWindow.draw(qmText);
+        mainMenuWindow.draw(optionsText);
+        mainMenuWindow.draw(logoSprite);
+        mainMenuWindow.draw(carbonSprite);
+        mainMenuWindow.display();
+    }
+    if (sandboxIsOpen)
+    {
+        periodicTableWindow.create(sf::VideoMode(1280, 1024), "Periodic Table");
+    }
     const int elementWidth = (periodicTableWindow.getSize().x - 330) / elementsPerRow;
     //Set transition metals
     for (int i = 19; i <= 28; i++)
@@ -305,9 +444,6 @@ int main() {
         elements[i].period = getPeriod(i + 1);
         elements[i].group = getGroup(i + 1);
     }
-    if (!font.loadFromFile("resources/fonts/arial.ttf")) {
-        return 1;
-    }
     while (periodicTableWindow.isOpen())
     {
         // check all the window's events that were triggered since the last iteration of the loop
@@ -351,7 +487,6 @@ int main() {
             text.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
             text.setFillColor(elements[i].textColor);
 
-            sf::FloatRect elementBounds(block.getPosition(), block.getSize());
             sf::FloatRect menu2(menu.getPosition(), menu.getSize());
             block.setFillColor(elements[i].backgroundColor);
             menu.setFillColor(black);
@@ -390,7 +525,7 @@ int main() {
 
             test.setString(infoViewText);
 
-            if (elementBounds.contains(static_cast<sf::Vector2f>(mousePosition))) {
+            if (block.getGlobalBounds().contains(mousePosition.x,mousePosition.y)) {
 
                 block.setOutlineThickness(1);
                 block.setOutlineColor(blue);
@@ -406,15 +541,6 @@ int main() {
                 block.setFillColor(elements[i].backgroundColor);
                 block.setOutlineThickness(0);
             }
-            if (menu2.contains(static_cast<sf::Vector2f>(mousePosition))) {
-
-                periodicTableWindow.close();
-                if (!simulatorWindow.isOpen())
-                {
-                    simulatorWindow.create(sf::VideoMode(1280, 1024), "Periodic");
-                }
-
-            }
             slider1.draw(periodicTableWindow);
             periodicTableWindow.draw(block);
             periodicTableWindow.draw(menu);
@@ -424,8 +550,6 @@ int main() {
     }
 
     //Second window
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
     while (simulatorWindow.isOpen())
     {
         sf::Event event;
@@ -435,7 +559,6 @@ int main() {
                 simulatorWindow.close();
         }
         simulatorWindow.clear(white);
-        simulatorWindow.draw(shape);
         simulatorWindow.display();
     }
     return 0;
