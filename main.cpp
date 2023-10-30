@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
+#include <iostream>
 #include <iomanip>
 #include "slider.h"
 #include <sstream>
@@ -195,20 +196,30 @@ bool window2IsOpen = false;
 bool sandboxIsOpen = false;
 bool questModeIsOpen = false;
 bool optionsIsOpen = false;
+bool periodicTableOpen = false;
+bool settingsMenuOpen = false;
+bool moleculesMenuOpen = false;
 
 
 //sf::textures
 sf::Texture logoTexture;
 sf::Texture carbonTexture;
+sf::Texture ptableIconTexture;
+sf::Texture settingsIconTexture;
+sf::Texture moleculesIconTexture;
 
 //sf::sprites
 sf::Sprite logoSprite;
 sf::Sprite carbonSprite;
+sf::Sprite ptableIconSprite;
+sf::Sprite settingsIconSprite;
+sf::Sprite moleculesIconSprite;
 
 //sf::RenderWindows
 sf::RenderWindow periodicTableWindow;
-sf::RenderWindow simulatorWindow;
+sf::RenderWindow sandboxWindow;
 sf::RenderWindow mainMenuWindow;
+
 Element elements[numElements] = {
     {"H", "Hydrogen", 1, 1.008, {1}, 2.20, -259.1, -252.9, 1766}, {"He", "Helium", 2, 4.002602, {2}, NULL, NULL, -269, 1895}, {"Li", "Lithium", 3, 6.94, {2,1}, 0.98, 180.54, 1342, 1817}, {"Be", "Beryllium", 4, 9.0121831, {2,2}, 1.57, 1287, 2470, 1797}, {"B", "Boron", 5, 10.81, {2,3}, 2.04, 2075, 4000, 1808},
     {"C","Carbon", 6, 12.011, {2,4}, 2.55, 3642, 3642, 3750}, {"N", "Nitrogen", 7, 14.007, {2,5}, 3.04, -210.1, -195.8, 1772}, {"O", "Oxygen", 8, 15.999, {2,6}, 3.44, -218, -183, 1774}, {"F", "Fluorine", 9, 18.998403162, {2,7}, 3.98, -220, -188.1, 1879}, {"Ne", "Neon", 10, 20.1797, {2,8}, NULL, -248.6, -246.1, 1898},
@@ -373,9 +384,9 @@ int main() {
     }
     if (sandboxIsOpen)
     {
-        periodicTableWindow.create(sf::VideoMode(1280, 1024), "Periodic Table");
+        sandboxWindow.create(sf::VideoMode(1280, 1024), "Periodic Table");
     }
-    const int elementWidth = (periodicTableWindow.getSize().x - 330) / elementsPerRow;
+    const int elementWidth = (sandboxWindow.getSize().x - 330) / elementsPerRow;
     //Set transition metals
     for (int i = 19; i <= 28; i++)
     {
@@ -444,122 +455,167 @@ int main() {
         elements[i].period = getPeriod(i + 1);
         elements[i].group = getGroup(i + 1);
     }
-    while (periodicTableWindow.isOpen())
+
+
+    //Sandbox window
+
+    sf::RectangleShape navbar;
+    navbar.setSize(sf::Vector2f(sandboxWindow.getSize().x, 140));
+    navbar.setPosition(sf::Vector2f(0, sandboxWindow.getSize().y - 120));
+    navbar.setFillColor(darkGrey);
+    if (!ptableIconTexture.loadFromFile("resources/images/ptable_icon.png"))
     {
-        // check all the window's events that were triggered since the last iteration of the loop
-        sf::Event event;
-        while (periodicTableWindow.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                periodicTableWindow.close();
-        }
-        periodicTableWindow.clear(white);
-
-        value = slider1.getSliderValue();
-
-        mousePosition = sf::Mouse::getPosition(periodicTableWindow);
-        sf::RectangleShape menu;
-        block.setSize(sf::Vector2f(elementWidth, elementHeight));
-        menu.setSize(sf::Vector2f(50, 50));
-        detailedView.setPosition(sf::Vector2f(1030.f, 100.f));
-
-        infoView.setPosition(sf::Vector2f(995.f, 290.f));
-        infoView.setFillColor(grey);
-
-        test.setFillColor(black);
-        test.setPosition(1010, 295);
-
-        zoomViewText.setPosition(detailedView.getPosition().x + 5, detailedView.getPosition().y + 10);
-        zoomViewText.setFillColor(black);
-        for (int i = 0; i < numElements; i++) {
-
-            row = elements[i].period - 1;
-            col = elements[i].group - 1;
-
-
-            block.setPosition(col * (elementWidth + gap), row * (elementHeight + gap) + 200); // Add an offset based on the gap
-            menu.setPosition(sf::Vector2f(50, 50));
-
-            zoomstr = std::to_string(elements[i].atomicNumber) + "\n" + elements[i].symbol + "\n" + elements[i].name + "\n" + std::to_string(elements[i].weight);
-            zoomViewText.setString(zoomstr);
-
-            text.setString(elements[i].symbol);
-            text.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
-            text.setFillColor(elements[i].textColor);
-
-            sf::FloatRect menu2(menu.getPosition(), menu.getSize());
-            block.setFillColor(elements[i].backgroundColor);
-            menu.setFillColor(black);
-            detailedView.setFillColor(elements[i].backgroundColor);
-
-
-            if (value <= elements[i].meltingPoint)
-            {
-                elements[i].state = "Solid";
-                elements[i].textColor = black;
-            }
-            if (value >= elements[i].meltingPoint)
-            {
-                elements[i].state = "Liquid";
-                elements[i].textColor = blue;
-            }
-            if (value >= elements[i].boilingPoint)
-            {
-                elements[i].state = "Gas";
-                elements[i].textColor = red;
-            }
-
-            infoViewText = "Series\t" + elements[i].series +
-                "\n\n\nState at    " + std::to_string(value) + "°C\t" + elements[i].state +
-                "\n\n\nWeight\t" + std::to_string(elements[i].weight) +
-                "\n\n\nEnergy levels\t";
-
-            energyLevels = elements[i].energyLevels.size();
-
-            for (int j = 0; j < energyLevels; j++)
-            {
-                infoViewText += std::to_string(elements[i].energyLevels[j]) + " ";
-            }
-
-            infoViewText += "\n\n\nElectronegativity \t" + std::to_string(elements[i].electronegativity) + "\n\n\nMelting point\t" + std::to_string(elements[i].meltingPoint) + "\n\n\nBoiling point\t" + std::to_string(elements[i].boilingPoint) + "\n\n\nDiscovered\t" + std::to_string(elements[i].yearDiscovery);
-
-            test.setString(infoViewText);
-
-            if (block.getGlobalBounds().contains(mousePosition.x,mousePosition.y)) {
-
-                block.setOutlineThickness(1);
-                block.setOutlineColor(blue);
-
-
-                periodicTableWindow.draw(detailedView);
-                periodicTableWindow.draw(zoomViewText);
-                periodicTableWindow.draw(infoView);
-                periodicTableWindow.draw(test);
-
-            }
-            else {
-                block.setFillColor(elements[i].backgroundColor);
-                block.setOutlineThickness(0);
-            }
-            slider1.draw(periodicTableWindow);
-            periodicTableWindow.draw(block);
-            periodicTableWindow.draw(menu);
-            periodicTableWindow.draw(text);
-        }
-        periodicTableWindow.display();
+        return 1;
     }
-
-    //Second window
-    while (simulatorWindow.isOpen())
+    if (!settingsIconTexture.loadFromFile("resources/images/settings_icon.png"))
     {
+        return 1;
+    }
+    if (!moleculesIconTexture.loadFromFile("resources/images/molecules_icon.png"))
+    {
+        return 1;
+    }
+    moleculesIconSprite.setTexture(moleculesIconTexture);
+    moleculesIconSprite.setPosition(navbar.getPosition().x + 150, navbar.getPosition().y + 5);
+    moleculesIconSprite.setScale(0.5f, 0.5f);
+
+    settingsIconSprite.setTexture(settingsIconTexture);
+    settingsIconSprite.setPosition(navbar.getPosition().x + 300, navbar.getPosition().y + 5);
+    settingsIconSprite.setScale(0.5f, 0.5f);
+
+    ptableIconSprite.setTexture(ptableIconTexture);
+    ptableIconSprite.setPosition(navbar.getPosition().x + 450, navbar.getPosition().y + 5);
+    ptableIconSprite.setScale(0.5f, 0.5f);
+    while (sandboxWindow.isOpen())
+    {
+        mousePosition = sf::Mouse::getPosition(sandboxWindow);
         sf::Event event;
-        while (simulatorWindow.pollEvent(event))
+        while (sandboxWindow.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
-                simulatorWindow.close();
+                sandboxWindow.close();
         }
-        simulatorWindow.clear(white);
-        simulatorWindow.display();
+        if (ptableIconSprite.getGlobalBounds().contains(mousePosition.x, mousePosition.y) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
+        {
+            periodicTableOpen = true;
+        }
+        if (moleculesIconSprite.getGlobalBounds().contains(mousePosition.x, mousePosition.y) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
+        {
+            moleculesMenuOpen = true;
+        }
+        if (settingsIconSprite.getGlobalBounds().contains(mousePosition.x, mousePosition.y) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
+        {
+            settingsMenuOpen = true;
+        }
+
+        while (periodicTableOpen)
+        {
+            while (sandboxWindow.pollEvent(event))
+            {
+                if (event.type == sf::Event::Closed)
+                {
+                    periodicTableOpen = false;  // Close the periodic table
+                }
+            }
+            // check all the window's events that were triggered since the last iteration of the loop
+            sandboxWindow.clear(white);
+            value = slider1.getSliderValue();
+
+            mousePosition = sf::Mouse::getPosition(sandboxWindow);
+            block.setSize(sf::Vector2f(elementWidth, elementHeight));
+            detailedView.setPosition(sf::Vector2f(1030.f, 100.f));
+
+            infoView.setPosition(sf::Vector2f(995.f, 290.f));
+            infoView.setFillColor(grey);
+
+            test.setFillColor(black);
+            test.setPosition(1010, 295);
+
+            zoomViewText.setPosition(detailedView.getPosition().x + 5, detailedView.getPosition().y + 10);
+            zoomViewText.setFillColor(black);
+            for (int i = 0; i < numElements; i++) {
+
+                row = elements[i].period - 1;
+                col = elements[i].group - 1;
+
+
+                block.setPosition(col * (elementWidth + gap), row * (elementHeight + gap) + 200); // Add an offset based on the gap
+
+                zoomstr = std::to_string(elements[i].atomicNumber) + "\n" + elements[i].symbol + "\n" + elements[i].name + "\n" + std::to_string(elements[i].weight);
+                zoomViewText.setString(zoomstr);
+
+                text.setString(elements[i].symbol);
+                text.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
+                text.setFillColor(elements[i].textColor);
+
+                block.setFillColor(elements[i].backgroundColor);
+                detailedView.setFillColor(elements[i].backgroundColor);
+
+
+                if (value <= elements[i].meltingPoint)
+                {
+                    elements[i].state = "Solid";
+                    elements[i].textColor = black;
+                }
+                if (value >= elements[i].meltingPoint)
+                {
+                    elements[i].state = "Liquid";
+                    elements[i].textColor = blue;
+                }
+                if (value >= elements[i].boilingPoint)
+                {
+                    elements[i].state = "Gas";
+                    elements[i].textColor = red;
+                }
+
+                infoViewText = "Series\t" + elements[i].series +
+                    "\n\n\nState at    " + std::to_string(value) + "°C\t" + elements[i].state +
+                    "\n\n\nWeight\t" + std::to_string(elements[i].weight) +
+                    "\n\n\nEnergy levels\t";
+
+                energyLevels = elements[i].energyLevels.size();
+
+                for (int j = 0; j < energyLevels; j++)
+                {
+                    infoViewText += std::to_string(elements[i].energyLevels[j]) + " ";
+                }
+
+                infoViewText += "\n\n\nElectronegativity \t" + std::to_string(elements[i].electronegativity) + "\n\n\nMelting point\t" + std::to_string(elements[i].meltingPoint) + "\n\n\nBoiling point\t" + std::to_string(elements[i].boilingPoint) + "\n\n\nDiscovered\t" + std::to_string(elements[i].yearDiscovery);
+
+                test.setString(infoViewText);
+
+                if (block.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
+
+                    block.setOutlineThickness(1);
+                    block.setOutlineColor(blue);
+
+
+                    sandboxWindow.draw(detailedView);
+                    sandboxWindow.draw(zoomViewText);
+                    sandboxWindow.draw(infoView);
+                    sandboxWindow.draw(test);
+                    if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+                    {
+                        periodicTableOpen = false;
+                    }
+
+                }
+                else {
+                    block.setFillColor(elements[i].backgroundColor);
+                    block.setOutlineThickness(0);
+                }
+                slider1.draw(sandboxWindow);
+                sandboxWindow.draw(block);
+                sandboxWindow.draw(text);
+            }
+            sandboxWindow.display();
+        }
+        sandboxWindow.clear(white);
+        sandboxWindow.draw(navbar);
+        sandboxWindow.draw(ptableIconSprite);
+        sandboxWindow.draw(settingsIconSprite);
+        sandboxWindow.draw(moleculesIconSprite);
+        sandboxWindow.display();
     }
     return 0;
 }
