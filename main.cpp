@@ -21,6 +21,14 @@ struct Element {
     std::string state;
     std::string series;
 };
+
+struct Molecule
+{
+    std::string abberviation;
+    std::string name;
+};
+
+
 int getPeriod(int atomicNumber) {
     if (atomicNumber >= 1 && atomicNumber <= 2) {
         return 1;
@@ -135,6 +143,7 @@ const int elementsPerRow = 18;
 const int elementHeight = 60;
 const int numLanthanoids = 14;
 const int numActinoids = 14;
+const int numberMolecules = 35;
 const float gap = 1;
 
 //Changable values
@@ -173,6 +182,7 @@ sf::Text sbText("", font, 30);
 sf::Text qmText("", font, 30);
 sf::Text optionsText("", font, 30);
 sf::Text mainMenuH("", font, 40);
+sf::Text selectedElementText("", font, 20);
 
 //sf::RectangleShapes
 sf::RectangleShape detailedView(sf::Vector2f(180, 180));
@@ -186,7 +196,6 @@ sf::RectangleShape optionsButton;
 //Strings
 std::string zoomstr;
 std::string infoViewText;
-
 
 //Integer vectors
 sf::Vector2i mousePosition;
@@ -219,6 +228,13 @@ sf::Sprite moleculesIconSprite;
 sf::RenderWindow periodicTableWindow;
 sf::RenderWindow sandboxWindow;
 sf::RenderWindow mainMenuWindow;
+
+//counters
+int counter = 0;
+
+//vectors
+std::vector<Element> selectedElement;
+
 
 Element elements[numElements] = {
     {"H", "Hydrogen", 1, 1.008, {1}, 2.20, -259.1, -252.9, 1766}, {"He", "Helium", 2, 4.002602, {2}, NULL, NULL, -269, 1895}, {"Li", "Lithium", 3, 6.94, {2,1}, 0.98, 180.54, 1342, 1817}, {"Be", "Beryllium", 4, 9.0121831, {2,2}, 1.57, 1287, 2470, 1797}, {"B", "Boron", 5, 10.81, {2,3}, 2.04, 2075, 4000, 1808},
@@ -261,6 +277,9 @@ const std::vector<int> allkalineEarthMetals = { elements[2].atomicNumber, elemen
 const std::vector<int> allkaliMetals = { elements[1].atomicNumber, elements[9].atomicNumber, elements[17].atomicNumber, elements[35].atomicNumber, elements[53].atomicNumber, elements[85].atomicNumber };
 const std::vector<int> unknown = { elements[107].atomicNumber, elements[108].atomicNumber, elements[109].atomicNumber, elements[110].atomicNumber, elements[111].atomicNumber, elements[112].atomicNumber, elements[113].atomicNumber , elements[114].atomicNumber , elements[115].atomicNumber , elements[116].atomicNumber };
 
+Molecule molecules[numberMolecules] = {
+    {"H2O", "Water"}, {"O2", "Oxygen"}, {"CO2", "Carbon Dioxide"}, {"C6H1206", "Glucose"},{"C8H10N4O2","Caffeine"},{"CH4", "Methane"},{"C2H5OH", "Ethanol"}, {"NaCl", "Salt"}, {"N2", "Nitrogen"}, {"H2O2", "Hydrogen Peroxide"}, {"CO", "Carbon Monoxide"}, {"H2SO4", "Sulfuric Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Aci"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"},
+};
 int main() {
     mainMenuWindow.create(sf::VideoMode(1280, 1024), "Psycho");
 
@@ -597,6 +616,11 @@ int main() {
                     if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
                     {
                         periodicTableOpen = false;
+                        if (counter < 2)
+                        {
+                            counter++;
+                            selectedElement.push_back(elements[i]);
+                        }
                     }
 
                 }
@@ -604,9 +628,51 @@ int main() {
                     block.setFillColor(elements[i].backgroundColor);
                     block.setOutlineThickness(0);
                 }
+                std::string selectedElements;
+                for (const Element& element : selectedElement)
+                {
+                    selectedElements += element.name + " ";
+                }
+                selectedElementText.setString(selectedElements);
+                selectedElementText.setFillColor(black);
+                selectedElementText.setPosition(50, 50);
                 slider1.draw(sandboxWindow);
                 sandboxWindow.draw(block);
                 sandboxWindow.draw(text);
+            }
+            sandboxWindow.display();
+        }
+        int columnCount = 5;  // Number of columns in the table
+        int rowCount = (numberMolecules + columnCount - 1) / columnCount; // Calculate the number of rows
+        while (moleculesMenuOpen)
+        {
+            sandboxWindow.clear(white);
+            while (sandboxWindow.pollEvent(event))
+            {
+                if (event.type == sf::Event::Closed)
+                {
+                    moleculesMenuOpen = false;
+                }
+            }
+            float cellWidth = sandboxWindow.getSize().x / columnCount;
+            float cellHeight = sandboxWindow.getSize().y / rowCount;
+            for (int i = 0; i < numberMolecules; i++)
+            {
+                row = i / columnCount;
+                col = i % columnCount;
+                sf::RectangleShape rectangle(sf::Vector2f(200, 100));
+                rectangle.setFillColor(blue);
+                rectangle.setPosition(col* cellWidth, row* cellHeight);
+
+                sf::Text text;
+                text.setFont(font);
+                text.setString("Name: " + molecules[i].name + "\nAbbreviation: " + molecules[i].abberviation);
+                text.setCharacterSize(20);
+                text.setFillColor(sf::Color::White);
+                text.setPosition(col* cellWidth + 10, row* cellHeight + 10);
+                sandboxWindow.draw(rectangle);
+                sandboxWindow.draw(text);
+
             }
             sandboxWindow.display();
         }
@@ -615,6 +681,7 @@ int main() {
         sandboxWindow.draw(ptableIconSprite);
         sandboxWindow.draw(settingsIconSprite);
         sandboxWindow.draw(moleculesIconSprite);
+        sandboxWindow.draw(selectedElementText);
         sandboxWindow.display();
     }
     return 0;
