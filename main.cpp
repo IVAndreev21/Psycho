@@ -208,6 +208,7 @@ bool optionsIsOpen = false;
 bool periodicTableOpen = false;
 bool settingsMenuOpen = false;
 bool moleculesMenuOpen = false;
+bool reactionsMenuOpen = false;
 
 
 //sf::textures
@@ -216,6 +217,7 @@ sf::Texture carbonTexture;
 sf::Texture ptableIconTexture;
 sf::Texture settingsIconTexture;
 sf::Texture moleculesIconTexture;
+sf::Texture reactionsIconTexture;
 
 //sf::sprites
 sf::Sprite logoSprite;
@@ -223,6 +225,7 @@ sf::Sprite carbonSprite;
 sf::Sprite ptableIconSprite;
 sf::Sprite settingsIconSprite;
 sf::Sprite moleculesIconSprite;
+sf::Sprite reactionsIconSprite;
 
 //sf::RenderWindows
 sf::RenderWindow periodicTableWindow;
@@ -494,6 +497,10 @@ int main() {
     {
         return 1;
     }
+    if (!reactionsIconTexture.loadFromFile("resources/images/reactions_icon.png"))
+    {
+        return 1;
+    }
     moleculesIconSprite.setTexture(moleculesIconTexture);
     moleculesIconSprite.setPosition(navbar.getPosition().x + 150, navbar.getPosition().y + 5);
     moleculesIconSprite.setScale(0.5f, 0.5f);
@@ -505,6 +512,10 @@ int main() {
     ptableIconSprite.setTexture(ptableIconTexture);
     ptableIconSprite.setPosition(navbar.getPosition().x + 450, navbar.getPosition().y + 5);
     ptableIconSprite.setScale(0.5f, 0.5f);
+
+    reactionsIconSprite.setTexture(reactionsIconTexture);
+    reactionsIconSprite.setPosition(navbar.getPosition().x + 600, navbar.getPosition().y + 5);
+    reactionsIconSprite.setScale(0.5f, 0.5f);
     while (sandboxWindow.isOpen())
     {
         mousePosition = sf::Mouse::getPosition(sandboxWindow);
@@ -525,6 +536,10 @@ int main() {
         if (settingsIconSprite.getGlobalBounds().contains(mousePosition.x, mousePosition.y) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
             settingsMenuOpen = true;
+        }
+        if (reactionsIconSprite.getGlobalBounds().contains(mousePosition.x, mousePosition.y) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
+        {
+            reactionsMenuOpen = true;
         }
 
         while (periodicTableOpen)
@@ -676,11 +691,61 @@ int main() {
             }
             sandboxWindow.display();
         }
+        sf::CircleShape circle(30); // Smaller radius
+        circle.setFillColor(grey);
+        circle.setOrigin(30, 30); // Set the origin to the center of the circle
+        circle.setPosition(50, 50); // Position the circle at the center of the window
+
+        // Calculate the plus sign position relative to the circle's center
+        sf::RectangleShape horizontalLine(sf::Vector2f(40, 5)); // Width to fit the circle
+        horizontalLine.setFillColor(darkGrey);
+        horizontalLine.setOrigin(20, 2.5); // Set the origin to the center of the line
+        horizontalLine.setPosition(circle.getPosition().x, circle.getPosition().y);
+
+        sf::RectangleShape verticalLine(sf::Vector2f(5, 40)); // Height to fit the circle
+        verticalLine.setFillColor(darkGrey);
+        verticalLine.setOrigin(2.5, 20); // Set the origin to the center of the line
+        verticalLine.setPosition(circle.getPosition().x, circle.getPosition().y);
+        bool pressed = true;
+        while (reactionsMenuOpen)
+        {
+            sandboxWindow.clear(white);
+            while (sandboxWindow.pollEvent(event))
+            {
+                if (event.type == sf::Event::Closed)
+                {
+                    reactionsMenuOpen = false;
+                    pressed = false;
+                }
+            }
+            mousePosition = sf::Mouse::getPosition(sandboxWindow);
+            if (circle.getGlobalBounds().contains(mousePosition.x, mousePosition.y) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
+            {
+                pressed = true;
+            }
+            if (pressed)
+            {
+                ptableIconSprite.setPosition(10, 10);
+            }
+            else
+            {
+                ptableIconSprite.setPosition(navbar.getPosition().x + 450, navbar.getPosition().y + 5);
+            }
+            sandboxWindow.clear(white);
+            sandboxWindow.draw(ptableIconSprite);
+            sandboxWindow.draw(circle);
+            sandboxWindow.draw(horizontalLine);
+            sandboxWindow.draw(verticalLine);
+            sandboxWindow.display();
+        }
+
+
         sandboxWindow.clear(white);
         sandboxWindow.draw(navbar);
         sandboxWindow.draw(ptableIconSprite);
         sandboxWindow.draw(settingsIconSprite);
         sandboxWindow.draw(moleculesIconSprite);
+        sandboxWindow.draw(reactionsIconSprite);
         sandboxWindow.draw(selectedElementText);
         sandboxWindow.display();
     }
