@@ -1,9 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
-#include <iostream>
-#include <iomanip>
 #include "slider.h"
-#include <sstream>
 struct Element {
     std::string symbol;
     std::string name;
@@ -238,7 +235,10 @@ int counter = 0;
 //vectors
 std::vector<Element> selectedElement;
 std::vector<sf::CircleShape> circles;
+std::vector<sf::Text> elementSymbols;
 
+//
+sf::CircleShape circle;
 
 Element elements[numElements] = {
     {"H", "Hydrogen", 1, 1.008, {1}, 2.20, -259.1, -252.9, 1766}, {"He", "Helium", 2, 4.002602, {2}, NULL, NULL, -269, 1895}, {"Li", "Lithium", 3, 6.94, {2,1}, 0.98, 180.54, 1342, 1817}, {"Be", "Beryllium", 4, 9.0121831, {2,2}, 1.57, 1287, 2470, 1797}, {"B", "Boron", 5, 10.81, {2,3}, 2.04, 2075, 4000, 1808},
@@ -546,13 +546,6 @@ int main() {
         bool hasSelected = false;
         while (periodicTableOpen)
         {
-            while (sandboxWindow.pollEvent(event))
-            {
-                if (event.type == sf::Event::Closed)
-                {
-                    periodicTableOpen = false;  // Close the periodic table
-                }
-            }
             // check all the window's events that were triggered since the last iteration of the loop
             sandboxWindow.clear(white);
             value = slider1.getSliderValue();
@@ -570,7 +563,6 @@ int main() {
             zoomViewText.setPosition(detailedView.getPosition().x + 5, detailedView.getPosition().y + 10);
             zoomViewText.setFillColor(black);
             for (int i = 0; i < numElements; i++) {
-
                 row = elements[i].period - 1;
                 col = elements[i].group - 1;
 
@@ -605,7 +597,7 @@ int main() {
                 }
 
                 infoViewText = "Series\t" + elements[i].series +
-                    "\n\n\nState at    " + std::to_string(value) + "°C\t" + elements[i].state +
+                    "\n\n\nState at    " + std::to_string(value) + "Â°C\t" + elements[i].state +
                     "\n\n\nWeight\t" + std::to_string(elements[i].weight) +
                     "\n\n\nEnergy levels\t";
 
@@ -634,11 +626,22 @@ int main() {
                     {
                         periodicTableOpen = false;
                         selectedElement.push_back(elements[i]);
-                        sf::CircleShape circle(30); // Adjust the radius as needed
+                        circle.setRadius(30); // Adjust the radius as needed
                         circle.setPosition(mousePosition.x, mousePosition.y); // Adjust position as needed
                         circle.setFillColor(elements[i].backgroundColor);
+
                         circles.push_back(circle);
-                        
+
+                        selectedElementText.setFont(font); // Set the font as needed
+                        selectedElementText.setCharacterSize(20); // Set the character size as needed
+                        selectedElementText.setFillColor(elements[i].textColor); // Set the text color as needed
+                        selectedElementText.setString(elements[i].symbol);
+
+                        // Set the position of the text to match the position of the circle
+                        selectedElementText.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
+
+                        // Add the elementText to the elementSymbols vector
+                        elementSymbols.push_back(selectedElementText);
                     }
 
                 }
@@ -646,13 +649,6 @@ int main() {
                     block.setFillColor(elements[i].backgroundColor);
                     block.setOutlineThickness(0);
                 }
-                std::string selectedElements;
-                for (const Element& element : selectedElement)
-                {
-                    selectedElements = element.symbol;
-                }
-                selectedElementText.setString(selectedElements);
-                selectedElementText.setFillColor(black);
                 slider1.draw(sandboxWindow);
                 sandboxWindow.draw(block);
                 sandboxWindow.draw(text);
@@ -695,18 +691,12 @@ int main() {
         }
 
         sandboxWindow.clear(white);
-        for (const sf::CircleShape& circle : circles)
+        for (size_t i = 0; i < circles.size(); i++)
         {
-            sandboxWindow.draw(circle);
-            selectedElementText.setPosition(circle.getPosition().x + 20, circle.getPosition().y + 20);
-            sf::Vector2f direction = static_cast<sf::Vector2f>(mousePosition) - circles[0].getPosition();
-            float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+            sandboxWindow.draw(circles[i]);
+            elementSymbols[i].setPosition(circles[i].getPosition().x + 20, circles[i].getPosition().y + 20);
 
-            if (length > 1.0) { // Avoid division by zero
-                direction /= length;
-            }
-            circles[0].move(2.0f * direction); // Adjust the speed as needed
-
+            sandboxWindow.draw(elementSymbols[i]); // Draw the corresponding text
         }
 
         sandboxWindow.draw(navbar);
@@ -715,7 +705,6 @@ int main() {
         sandboxWindow.draw(moleculesIconSprite);
         sandboxWindow.draw(reactionsIconSprite);
         sandboxWindow.draw(selectedElementCircle);
-        sandboxWindow.draw(selectedElementText);
         sandboxWindow.display();
     }
     return 0;
