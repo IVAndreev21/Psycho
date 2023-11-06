@@ -549,7 +549,13 @@ int main() {
             // check all the window's events that were triggered since the last iteration of the loop
             sandboxWindow.clear(white);
             value = slider1.getSliderValue();
-
+            while (sandboxWindow.pollEvent(event))
+            {
+                if (event.type == sf::Event::Closed)
+                {
+                    periodicTableOpen = false;
+                }
+            }
             mousePosition = sf::Mouse::getPosition(sandboxWindow);
             block.setSize(sf::Vector2f(elementWidth, elementHeight));
             detailedView.setPosition(sf::Vector2f(1030.f, 100.f));
@@ -699,6 +705,17 @@ int main() {
             sandboxWindow.draw(elementSymbols[i]); // Draw the corresponding text
         }
 
+        while (reactionsMenuOpen)
+        {
+            sf::Event event;
+            while (sandboxWindow.pollEvent(event))
+            {
+                if (event.type == sf::Event::Closed)
+                reactionsMenuOpen = false;
+            }
+            sandboxWindow.clear(white);
+            sandboxWindow.display();
+        }
         sandboxWindow.draw(navbar);
         sandboxWindow.draw(ptableIconSprite);
         sandboxWindow.draw(settingsIconSprite);
