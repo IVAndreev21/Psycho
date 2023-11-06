@@ -187,18 +187,19 @@ sf::Color darkGrey(169, 169, 169);
 sf::Font font;
 
 //sf::Texts
-sf::Text text("", font, 20);
+sf::Text elementSymbolText("", font, 20);
 sf::Text zoomViewText("", font, 35);
-sf::Text test("", font, 18);
+sf::Text selectedElementInfo("", font, 18);
 sf::Text sbText("", font, 30);
 sf::Text qmText("", font, 30);
 sf::Text optionsText("", font, 30);
 sf::Text mainMenuH("", font, 40);
 sf::Text selectedElementText("", font, 20);
-sf::Text noReaction("", font, 30);
-sf::Text text2("", font, 20);
-sf::Text text3("", font, 20);
+sf::Text noReactionText("", font, 30);
+sf::Text elementSymbol2Text("", font, 20);
+sf::Text elementSymbol3Text("", font, 20);
 sf::Text circleText("", font, 20);
+sf::Text moleculeInfoText("", font, 20);
 //sf::RectangleShapes
 sf::RectangleShape detailedView(sf::Vector2f(180, 180));
 sf::RectangleShape infoView(sf::Vector2f(250, 500));
@@ -210,7 +211,7 @@ sf::RectangleShape optionsButton;
 
 //Strings
 std::string zoomstr;
-std::string infoViewText;
+std::string infoViewStr;
 
 //Integer vectors
 sf::Vector2i mousePosition;
@@ -613,8 +614,8 @@ int main() {
             infoView.setPosition(sf::Vector2f(995.f, 290.f));
             infoView.setFillColor(grey);
 
-            test.setFillColor(black);
-            test.setPosition(1010, 295);
+            selectedElementInfo.setFillColor(black);
+            selectedElementInfo.setPosition(1010, 295);
 
             zoomViewText.setPosition(detailedView.getPosition().x + 5, detailedView.getPosition().y + 10);
             zoomViewText.setFillColor(black);
@@ -628,9 +629,9 @@ int main() {
                 zoomstr = std::to_string(elements[i].atomicNumber) + "\n" + elements[i].symbol + "\n" + elements[i].name + "\n" + std::to_string(elements[i].weight);
                 zoomViewText.setString(zoomstr);
 
-                text.setString(elements[i].symbol);
-                text.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
-                text.setFillColor(elements[i].textColor);
+                elementSymbolText.setString(elements[i].symbol);
+                elementSymbolText.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
+                elementSymbolText.setFillColor(elements[i].textColor);
 
                 block.setFillColor(elements[i].backgroundColor);
                 detailedView.setFillColor(elements[i].backgroundColor);
@@ -652,7 +653,7 @@ int main() {
                     elements[i].textColor = red;
                 }
 
-                infoViewText = "Series\t" + elements[i].series +
+                infoViewStr = "Series\t" + elements[i].series +
                     "\n\n\nState at    " + std::to_string(value) + "°C\t" + elements[i].state +
                     "\n\n\nWeight\t" + std::to_string(elements[i].weight) +
                     "\n\n\nEnergy levels\t";
@@ -661,12 +662,12 @@ int main() {
 
                 for (int j = 0; j < energyLevels; j++)
                 {
-                    infoViewText += std::to_string(elements[i].energyLevels[j]) + " ";
+                    infoViewStr += std::to_string(elements[i].energyLevels[j]) + " ";
                 }
 
-                infoViewText += "\n\n\nElectronegativity \t" + std::to_string(elements[i].electronegativity) + "\n\n\nMelting point\t" + std::to_string(elements[i].meltingPoint) + "\n\n\nBoiling point\t" + std::to_string(elements[i].boilingPoint) + "\n\n\nDiscovered\t" + std::to_string(elements[i].yearDiscovery);
+                infoViewStr += "\n\n\nElectronegativity \t" + std::to_string(elements[i].electronegativity) + "\n\n\nMelting point\t" + std::to_string(elements[i].meltingPoint) + "\n\n\nBoiling point\t" + std::to_string(elements[i].boilingPoint) + "\n\n\nDiscovered\t" + std::to_string(elements[i].yearDiscovery);
 
-                test.setString(infoViewText);
+                selectedElementInfo.setString(infoViewStr);
 
                 if (block.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
 
@@ -677,7 +678,7 @@ int main() {
                     sandboxWindow.draw(detailedView);
                     sandboxWindow.draw(zoomViewText);
                     sandboxWindow.draw(infoView);
-                    sandboxWindow.draw(test);
+                    sandboxWindow.draw(selectedElementInfo);
                     if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
                     {
                         periodicTableOpen = false;
@@ -694,7 +695,7 @@ int main() {
                 }
                 slider1.draw(sandboxWindow);
                 sandboxWindow.draw(block);
-                sandboxWindow.draw(text);
+                sandboxWindow.draw(elementSymbolText);
             }
             for (int i = 0; i < numLanthanoids; i++) {
                 int col = i + 3;
@@ -702,14 +703,14 @@ int main() {
                 block.setFillColor(lanthanoidsColor);
                 block.setPosition(col * (elementWidth + gap), block.getSize().y + 600);
 
-                text2.setString(elements[56 + i].symbol);
-                text2.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
-                text2.setFillColor(elements[i + 56].textColor);
+                elementSymbol2Text.setString(elements[56 + i].symbol);
+                elementSymbol2Text.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
+                elementSymbol2Text.setFillColor(elements[i + 56].textColor);
 
                 zoomstr = std::to_string(elements[56 + i].atomicNumber) + "\n" + elements[56 + i].symbol + "\n" + elements[56 + i].name + "\n" + std::to_string(elements[56 + i].weight);
                 zoomViewText.setString(zoomstr);
 
-                infoViewText = "Series\t" + elements[56 + i].series +
+                infoViewStr = "Series\t" + elements[56 + i].series +
                     "\n\n\nState at    " + std::to_string(value) + "°C\t" + elements[56 + i].state +
                     "\n\n\nWeight\t" + std::to_string(elements[56 + i].weight) +
                     "\n\n\nEnergy levels\t";
@@ -718,19 +719,19 @@ int main() {
 
                 for (int j = 0; j < energyLevels; j++)
                 {
-                    infoViewText += std::to_string(elements[56 + i].energyLevels[j]) + " ";
+                    infoViewStr += std::to_string(elements[56 + i].energyLevels[j]) + " ";
                 }
 
-                infoViewText += "\n\n\nElectronegativity \t" + std::to_string(elements[56 + i].electronegativity) + "\n\n\nMelting point\t" + std::to_string(elements[56 + i].meltingPoint) + "\n\n\nBoiling point\t" + std::to_string(elements[56 + i].boilingPoint) + "\n\n\nDiscovered\t" + std::to_string(elements[56 + i].yearDiscovery);
+                infoViewStr += "\n\n\nElectronegativity \t" + std::to_string(elements[56 + i].electronegativity) + "\n\n\nMelting point\t" + std::to_string(elements[56 + i].meltingPoint) + "\n\n\nBoiling point\t" + std::to_string(elements[56 + i].boilingPoint) + "\n\n\nDiscovered\t" + std::to_string(elements[56 + i].yearDiscovery);
 
-                test.setString(infoViewText);
+                selectedElementInfo.setString(infoViewStr);
                 if (block.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
                     block.setOutlineThickness(1);
                     block.setOutlineColor(blue);
                     sandboxWindow.draw(detailedView);
                     sandboxWindow.draw(zoomViewText);
                     sandboxWindow.draw(infoView);
-                    sandboxWindow.draw(test);
+                    sandboxWindow.draw(selectedElementInfo);
                 }
                 else
                 {
@@ -753,7 +754,7 @@ int main() {
                     elements[i + 56].textColor = red;
                 }
                 sandboxWindow.draw(block);
-                sandboxWindow.draw(text2);
+                sandboxWindow.draw(elementSymbol2Text);
             }
 
             for (int i = 0; i < numActinoids; i++) {
@@ -762,14 +763,14 @@ int main() {
                 block.setFillColor(actinoidsColor);
                 block.setPosition(col * (elementWidth + gap), block.getSize().y + 670);
 
-                text3.setString(elements[88 + i].symbol);
-                text3.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
-                text3.setFillColor(elements[88 + i].textColor);
+                elementSymbol3Text.setString(elements[88 + i].symbol);
+                elementSymbol3Text.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
+                elementSymbol3Text.setFillColor(elements[88 + i].textColor);
 
                 zoomstr = std::to_string(elements[88 + i].atomicNumber) + "\n" + elements[88 + i].symbol + "\n" + elements[88 + i].name + "\n" + std::to_string(elements[88 + i].weight);
                 zoomViewText.setString(zoomstr);
 
-                infoViewText = "Series\t" + elements[88 + i].series +
+                infoViewStr = "Series\t" + elements[88 + i].series +
                     "\n\n\nState at    " + std::to_string(value) + "°C\t" + elements[88 + i].state +
                     "\n\n\nWeight\t" + std::to_string(elements[88 + i].weight) +
                     "\n\n\nEnergy levels\t";
@@ -778,19 +779,19 @@ int main() {
 
                 for (int j = 0; j < energyLevels; j++)
                 {
-                    infoViewText += std::to_string(elements[88 + i].energyLevels[j]) + " ";
+                    infoViewStr += std::to_string(elements[88 + i].energyLevels[j]) + " ";
                 }
 
-                infoViewText += "\n\n\nElectronegativity \t" + std::to_string(elements[88 + i].electronegativity) + "\n\n\nMelting point\t" + std::to_string(elements[88 + i].meltingPoint) + "\n\n\nBoiling point\t" + std::to_string(elements[88 + i].boilingPoint) + "\n\n\nDiscovered\t" + std::to_string(elements[88 + i].yearDiscovery);
+                infoViewStr += "\n\n\nElectronegativity \t" + std::to_string(elements[88 + i].electronegativity) + "\n\n\nMelting point\t" + std::to_string(elements[88 + i].meltingPoint) + "\n\n\nBoiling point\t" + std::to_string(elements[88 + i].boilingPoint) + "\n\n\nDiscovered\t" + std::to_string(elements[88 + i].yearDiscovery);
 
-                test.setString(infoViewText);
+                selectedElementInfo.setString(infoViewStr);
                 if (block.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
                     block.setOutlineThickness(1);
                     block.setOutlineColor(blue);
                     sandboxWindow.draw(detailedView);
                     sandboxWindow.draw(zoomViewText);
                     sandboxWindow.draw(infoView);
-                    sandboxWindow.draw(test);
+                    sandboxWindow.draw(selectedElementInfo);
                 }
                 else
                 {
@@ -813,7 +814,7 @@ int main() {
                     elements[i + 88].textColor = red;
                 }
                 sandboxWindow.draw(block);
-                sandboxWindow.draw(text3);
+                sandboxWindow.draw(elementSymbol3Text);
             }
             sandboxWindow.display();
         }
@@ -839,14 +840,11 @@ int main() {
                 rectangle.setFillColor(blue);
                 rectangle.setPosition(col* cellWidth, row* cellHeight);
 
-                sf::Text text;
-                text.setFont(font);
-                text.setString("Name: " + molecules[i].name + "\nAbbreviation: " + molecules[i].abberviation);
-                text.setCharacterSize(20);
-                text.setFillColor(sf::Color::White);
-                text.setPosition(col* cellWidth + 10, row* cellHeight + 10);
+                moleculeInfoText.setString("Name: " + molecules[i].name + "\nAbbreviation: " + molecules[i].abberviation);
+                moleculeInfoText.setFillColor(white);
+                moleculeInfoText.setPosition(col* cellWidth + 10, row* cellHeight + 10);
                 sandboxWindow.draw(rectangle);
-                sandboxWindow.draw(text);
+                sandboxWindow.draw(moleculeInfoText);
 
             }
             sandboxWindow.display();
@@ -870,10 +868,10 @@ int main() {
             sandboxWindow.clear(white);
             if (!isReactionAvailable)
             {
-                noReaction.setString("There is no available reactions");
-                noReaction.setPosition(sandboxWindow.getSize().x / 2, sandboxWindow.getSize().y / 2);
-                noReaction.setFillColor(black);
-                sandboxWindow.draw(noReaction);
+                noReactionText.setString("There is no available reactions");
+                noReactionText.setPosition(sandboxWindow.getSize().x / 2, sandboxWindow.getSize().y / 2);
+                noReactionText.setFillColor(black);
+                sandboxWindow.draw(noReactionText);
             }
             sandboxWindow.display();
         }
