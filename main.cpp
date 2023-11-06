@@ -212,6 +212,7 @@ bool settingsMenuOpen = false;
 bool moleculesMenuOpen = false;
 bool reactionsMenuOpen = false;
 bool isReactionAvailable = false;
+bool isDragging = false;
 
 
 //sf::textures
@@ -547,6 +548,20 @@ int main() {
         {
             if (event.type == sf::Event::Closed)
                 sandboxWindow.close();
+            else if (event.mouseButton.button == sf::Mouse::Left)
+            {
+                for (size_t i = 0; i < circles.size(); i++)
+                {
+                    if (circles[i].getGlobalBounds().contains(mousePosition.x, mousePosition.y))
+                    {
+                        isDragging = true;
+                    }
+                }
+            }
+            else if (event.mouseButton.button == sf::Mouse::Right)
+            {
+                isDragging = false;
+            }
         }
         if (ptableIconSprite.getGlobalBounds().contains(mousePosition.x, mousePosition.y) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
@@ -837,6 +852,10 @@ int main() {
         sandboxWindow.clear(white);
         for (size_t i = 0; i < circles.size(); i++)
         {
+            if (isDragging)
+            {
+                circles[i].setPosition(mousePosition.x, mousePosition.y);
+            }
             sandboxWindow.draw(circles[i]);
             elementSymbols[i].setPosition(circles[i].getPosition().x + 20, circles[i].getPosition().y + 20);
 
