@@ -183,6 +183,8 @@ sf::Text optionsText("", font, 30);
 sf::Text mainMenuH("", font, 40);
 sf::Text selectedElementText("", font, 20);
 sf::Text noReaction("", font, 30);
+sf::Text text2("", font, 20);
+sf::Text text3("", font, 20);
 
 //sf::RectangleShapes
 sf::RectangleShape detailedView(sf::Vector2f(180, 180));
@@ -258,7 +260,7 @@ Element elements[numElements] = {
     {"Sb","Antimony", 51, 121.760, {2,8,18,18,5}, 2.05, 630.63, 1587, 3000}, {"Te", "Tellurium", 52, 127.60, {2,8,18,18,6}, 2.1, 449.51, 987.9, 1783}, {"I", "Iodine", 53, 126.90447, {2,8,18,18,7}, 2.66, 113.70, 184.3, 1811}, {"Xe", "Xenon", 54, 131.293, {2,8,18,18,8}, 2.6, -111.8, -108.0 , 1898}, {"Cs", "Caesium", 55, 132.90545196, {2,8,18,18,8,1}, 0.79, 28.440, 641, 1860},
     {"Ba","Barium", 56, 137.327, {2,8,18,18,8,2}, 0.89, 730, 1870, 1808}, {"La", "Lanthaum", 57, 138.90547, {2,8,18,18,9,2}, 1.10, 919.9, 3464, 1839}, {"Ce", "Cerium", 58, 140.116, {2,8,18,19,9,2}, 1.12, 797.9, 3360, 1803}, {"Pr", "Praseodymium", 59, 140.90766, {2,8,18,21,8,2}, 1.13, 930.9, 3290 , 1885}, {"Nd", "Neodymium", 60, 144.242, {2,8,18,22,8,2}, 1.14, 1021, 3100, 1885},
     {"Pm","Promethium", 61, 145, {2,8,18,23,8,2}, NULL, 1100, 3000, 1945}, {"Sm", "Samarium", 62, 150.36, {2,8,18,24,8,2}, 1.17, 1072, 1803, 1879}, {"Eu", "Europium", 63, 151.964, {2,8,18,25,8,2}, NULL, 821.9, 1500, 1901}, {"Gd", "Gadollinium", 64, 157.25, {2,8,18,25,9,2}, 1.20, 1313, 3250 , 1880}, {"Tb", "Terbium", 65, 158.925354, {2,8,18,27,8,2}, NULL, 1356, 3230, 1843},
-    {"Dy","Dysprosium", 66, 162.500, {2,8,18,28,8,2}, 1.22, 1412, 2567, 1886}, {"Ho", "Holmium", 67, 164.930329, {2,8,18,29,8,2}, 1.23, 1474, 27000, 1878}, {"Er", "Erbium", 68, 167.259, {2,8,18,30,8,2}, 1.24, 1497, 2868, 1842}, {"Tm", "Thulium", 69, 168.934219, {2,8,18,31,8,2}, 1.25, 1545, 1950 , 1879}, {"Yb", "Ytterbium", 70, 173.045, {2,8,18,32,8,2}, NULL, 818.9, 1196, 1878},
+    {"Dy","Dysprosium", 66, 162.500, {2,8,18,28,8,2}, 1.22, 1412, 2567, 1886}, {"Ho", "Holmium", 67, 164.930329, {2,8,18,29,8,2}, 1.23, 1474, 2700, 1878}, {"Er", "Erbium", 68, 167.259, {2,8,18,30,8,2}, 1.24, 1497, 2868, 1842}, {"Tm", "Thulium", 69, 168.934219, {2,8,18,31,8,2}, 1.25, 1545, 1950 , 1879}, {"Yb", "Ytterbium", 70, 173.045, {2,8,18,32,8,2}, NULL, 818.9, 1196, 1878},
     {"Lu","Luteium", 71, 174.9668, {2,8,18,32,9,2}, 1.27, 1663, 3402, 1907}, {"Hf", "Hafnium", 72, 178.486, {2,8,18,32,10,2}, 1.3, 2233, 4603, 1923}, {"Ta", "Tantalum", 73, 180.94788, {2,8,18,32,11,2}, 1.5, 3017, 5458, 1802}, {"W", "Tungsten", 74, 183.84, {2,8,18,32,12,2}, 2.36, 3422, 5555 , 1879}, {"Re", "Rhenium", 75, 173.045, {2,8,18,32,13,2}, 1.9, 3186, 5596, 1925},
     {"Os","Osmium", 76, 190.23, {2,8,18,32,14,2}, 2.2, 3033, 5012, 1803}, {"Ir", "Iridium", 77, 192.217, {2,8,18,32,15,2}, 2.20, 2466, 4428, 1803}, {"Pt", "Platinum", 78, 195.084, {2,8,18,32,17,1}, 2.28, 1768.3, 3825, 1735}, {"Au", "Gold", 79, 196.966570, {2,8,18,32,18,1}, 2.54, 2856, 890.1 , 2500}, {"Hg", "Mercury", 80, 200.59, {2,8,18,32,18,2}, 2.0, -38.830, 356.73, 1500},
     {"Ti","Thalium", 81, 204.38, {2,8,18,32,18,3}, 1.62, 304, 1473, 1861}, {"Pb", "Lead", 82, 207.2, {2,8,18,32,18,4}, 2.33, 327.46, 1749, 4000}, {"Bi", "Bismuth", 83, 208.98040, {2,8,18,32,18,5}, 2.02, 271.3, 1564, 1400}, {"Po", "Polonium", 84, 209, {2,8,18,32,18,6}, 2.0, 255, 961.9 , 1898}, {"At", "Astatine", 85, 210, {2,8,18,32,18,7}, 2.2, 302, 350, 1940},
@@ -672,36 +674,128 @@ int main() {
                     block.setFillColor(elements[i].backgroundColor);
                     block.setOutlineThickness(0);
                 }
-                for (int i = 0; i < numLanthanoids; i++) {
-                    int col = i + 3;
-                    sf::RectangleShape block(sf::Vector2f(elementWidth, elementHeight));
-                    block.setFillColor(lanthanoidsColor);
-                    block.setPosition(col * (elementWidth + gap), block.getSize().y + 600);
-
-                    sf::Text text("", font, 20);
-                    text.setString(elements[56 + i].symbol);
-                    text.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
-
-                    sandboxWindow.draw(block);
-                    sandboxWindow.draw(text);
-                }
-
-                for (int i = 0; i < numActinoids; i++) {
-                    int col = i + 3;
-                    sf::RectangleShape block(sf::Vector2f(elementWidth, elementHeight));
-                    block.setFillColor(actinoidsColor);
-                    block.setPosition(col * (elementWidth + gap), block.getSize().y + 670);
-
-                    sf::Text text("", font, 20);
-                    text.setString(elements[88 + i].symbol);
-                    text.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
-
-                    sandboxWindow.draw(block);
-                    sandboxWindow.draw(text);
-                }
                 slider1.draw(sandboxWindow);
                 sandboxWindow.draw(block);
                 sandboxWindow.draw(text);
+            }
+            for (int i = 0; i < numLanthanoids; i++) {
+                int col = i + 3;
+                sf::RectangleShape block(sf::Vector2f(elementWidth, elementHeight));
+                block.setFillColor(lanthanoidsColor);
+                block.setPosition(col * (elementWidth + gap), block.getSize().y + 600);
+
+                text2.setString(elements[56 + i].symbol);
+                text2.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
+                text2.setFillColor(elements[i + 56].textColor);
+
+                zoomstr = std::to_string(elements[56 + i].atomicNumber) + "\n" + elements[56 + i].symbol + "\n" + elements[56 + i].name + "\n" + std::to_string(elements[56 + i].weight);
+                zoomViewText.setString(zoomstr);
+
+                infoViewText = "Series\t" + elements[56 + i].series +
+                    "\n\n\nState at    " + std::to_string(value) + "°C\t" + elements[56 + i].state +
+                    "\n\n\nWeight\t" + std::to_string(elements[56 + i].weight) +
+                    "\n\n\nEnergy levels\t";
+
+                energyLevels = elements[56 + i].energyLevels.size();
+
+                for (int j = 0; j < energyLevels; j++)
+                {
+                    infoViewText += std::to_string(elements[56 + i].energyLevels[j]) + " ";
+                }
+
+                infoViewText += "\n\n\nElectronegativity \t" + std::to_string(elements[56 + i].electronegativity) + "\n\n\nMelting point\t" + std::to_string(elements[56 + i].meltingPoint) + "\n\n\nBoiling point\t" + std::to_string(elements[56 + i].boilingPoint) + "\n\n\nDiscovered\t" + std::to_string(elements[56 + i].yearDiscovery);
+
+                test.setString(infoViewText);
+                if (block.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
+                    block.setOutlineThickness(1);
+                    block.setOutlineColor(blue);
+                    sandboxWindow.draw(detailedView);
+                    sandboxWindow.draw(zoomViewText);
+                    sandboxWindow.draw(infoView);
+                    sandboxWindow.draw(test);
+                }
+                else
+                {
+                    block.setFillColor(lanthanoidsColor);
+                    block.setOutlineThickness(0);
+                }
+                if (value <= elements[i + 56].meltingPoint)
+                {
+                    elements[i + 56].state = "Solid";
+                    elements[i + 56].textColor = black;
+                }
+                if (value >= elements[i + 56].meltingPoint)
+                {
+                    elements[i + 56].state = "Liquid";
+                    elements[i + 56].textColor = blue;
+                }
+                if (value >= elements[i + 56].boilingPoint)
+                {
+                    elements[i + 56].state = "Gas";
+                    elements[i + 56].textColor = red;
+                }
+                sandboxWindow.draw(block);
+                sandboxWindow.draw(text2);
+            }
+
+            for (int i = 0; i < numActinoids; i++) {
+                int col = i + 3;
+                sf::RectangleShape block(sf::Vector2f(elementWidth, elementHeight));
+                block.setFillColor(actinoidsColor);
+                block.setPosition(col * (elementWidth + gap), block.getSize().y + 670);
+
+                text3.setString(elements[88 + i].symbol);
+                text3.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
+                text3.setFillColor(elements[88 + i].textColor);
+
+                zoomstr = std::to_string(elements[88 + i].atomicNumber) + "\n" + elements[88 + i].symbol + "\n" + elements[88 + i].name + "\n" + std::to_string(elements[88 + i].weight);
+                zoomViewText.setString(zoomstr);
+
+                infoViewText = "Series\t" + elements[88 + i].series +
+                    "\n\n\nState at    " + std::to_string(value) + "°C\t" + elements[88 + i].state +
+                    "\n\n\nWeight\t" + std::to_string(elements[88 + i].weight) +
+                    "\n\n\nEnergy levels\t";
+
+                energyLevels = elements[88 + i].energyLevels.size();
+
+                for (int j = 0; j < energyLevels; j++)
+                {
+                    infoViewText += std::to_string(elements[88 + i].energyLevels[j]) + " ";
+                }
+
+                infoViewText += "\n\n\nElectronegativity \t" + std::to_string(elements[88 + i].electronegativity) + "\n\n\nMelting point\t" + std::to_string(elements[88 + i].meltingPoint) + "\n\n\nBoiling point\t" + std::to_string(elements[88 + i].boilingPoint) + "\n\n\nDiscovered\t" + std::to_string(elements[88 + i].yearDiscovery);
+
+                test.setString(infoViewText);
+                if (block.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
+                    block.setOutlineThickness(1);
+                    block.setOutlineColor(blue);
+                    sandboxWindow.draw(detailedView);
+                    sandboxWindow.draw(zoomViewText);
+                    sandboxWindow.draw(infoView);
+                    sandboxWindow.draw(test);
+                }
+                else
+                {
+                    block.setFillColor(actinoidsColor);
+                    block.setOutlineThickness(0);
+                }
+                if (value <= elements[i + 88].meltingPoint)
+                {
+                    elements[i + 88].state = "Solid";
+                    elements[i + 88].textColor = black;
+                }
+                if (value >= elements[i + 88].meltingPoint)
+                {
+                    elements[i + 88].state = "Liquid";
+                    elements[i + 88].textColor = blue;
+                }
+                if (value >= elements[i + 88].boilingPoint)
+                {
+                    elements[i + 88].state = "Gas";
+                    elements[i + 88].textColor = red;
+                }
+                sandboxWindow.draw(block);
+                sandboxWindow.draw(text3);
             }
             sandboxWindow.display();
         }
