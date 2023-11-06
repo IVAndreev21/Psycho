@@ -180,6 +180,7 @@ sf::Text qmText("", font, 30);
 sf::Text optionsText("", font, 30);
 sf::Text mainMenuH("", font, 40);
 sf::Text selectedElementText("", font, 20);
+sf::Text noReaction("", font, 30);
 
 //sf::RectangleShapes
 sf::RectangleShape detailedView(sf::Vector2f(180, 180));
@@ -206,6 +207,7 @@ bool periodicTableOpen = false;
 bool settingsMenuOpen = false;
 bool moleculesMenuOpen = false;
 bool reactionsMenuOpen = false;
+bool isReactionAvailable = false;
 
 
 //sf::textures
@@ -714,6 +716,13 @@ int main() {
                 reactionsMenuOpen = false;
             }
             sandboxWindow.clear(white);
+            if (!isReactionAvailable)
+            {
+                noReaction.setString("There is no available reactions");
+                noReaction.setPosition(sandboxWindow.getSize().x / 2, sandboxWindow.getSize().y / 2);
+                noReaction.setFillColor(black);
+                sandboxWindow.draw(noReaction);
+            }
             sandboxWindow.display();
         }
         sandboxWindow.draw(navbar);
