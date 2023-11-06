@@ -159,6 +159,8 @@ sf::Color transitionMetalsColor(249, 155, 125);
 sf::Color allkalineEarthMetalsColor(233, 184, 36);
 sf::Color allkaliMetalsColor(238, 147, 34);
 sf::Color unknownColor(208, 212, 202);
+sf::Color lanthanoidsColor(255, 196, 54);
+sf::Color actinoidsColor(176, 146, 106);
 
 sf::Color grey(208, 212, 202);
 sf::Color white = sf::Color::White;
@@ -282,7 +284,8 @@ std::vector<int> transitionMetals;
 const std::vector<int> allkalineEarthMetals = { elements[2].atomicNumber, elements[10].atomicNumber, elements[18].atomicNumber, elements[36].atomicNumber, elements[54].atomicNumber, elements[86].atomicNumber };
 const std::vector<int> allkaliMetals = { elements[1].atomicNumber, elements[9].atomicNumber, elements[17].atomicNumber, elements[35].atomicNumber, elements[53].atomicNumber, elements[85].atomicNumber };
 const std::vector<int> unknown = { elements[107].atomicNumber, elements[108].atomicNumber, elements[109].atomicNumber, elements[110].atomicNumber, elements[111].atomicNumber, elements[112].atomicNumber, elements[113].atomicNumber , elements[114].atomicNumber , elements[115].atomicNumber , elements[116].atomicNumber };
-
+std::vector<int> lanthanoids;
+std::vector<int> actinoids;
 Molecule molecules[numberMolecules] = {
     {"H2O", "Water"}, {"O2", "Oxygen"}, {"CO2", "Carbon Dioxide"}, {"C6H1206", "Glucose"},{"C8H10N4O2","Caffeine"},{"CH4", "Methane"},{"C2H5OH", "Ethanol"}, {"NaCl", "Salt"}, {"N2", "Nitrogen"}, {"H2O2", "Hydrogen Peroxide"}, {"CO", "Carbon Monoxide"}, {"H2SO4", "Sulfuric Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Aci"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"},
 };
@@ -429,7 +432,14 @@ int main() {
     {
         transitionMetals.push_back(elements[i].atomicNumber);
     }
-
+    for (int i = 55; i <= 69; i++)
+    {
+        lanthanoids.push_back(elements[i].atomicNumber);
+    }
+    for (int i = 87; i <= 101; i++)
+    {
+        actinoids.push_back(elements[i].atomicNumber);
+    }
 
     Slider slider1(120, 105);
 
@@ -470,6 +480,14 @@ int main() {
     for (int atomicNumber : allkaliMetals) {
         elements[atomicNumber].backgroundColor = allkaliMetalsColor;
         elements[atomicNumber].series = "Allkali metals";
+    }
+    for (int atomicNumber : lanthanoids) {
+        elements[atomicNumber].backgroundColor = lanthanoidsColor;
+        elements[atomicNumber].series = "Lanthanoids";
+    }
+    for (int atomicNumber : lanthanoids) {
+        elements[atomicNumber].backgroundColor = actinoidsColor;
+        elements[atomicNumber].series = "Actinoids";
     }
     for (int atomicNumber : unknown) {
         elements[atomicNumber].backgroundColor = unknownColor;
@@ -544,11 +562,10 @@ int main() {
         {
             reactionsMenuOpen = true;
         }
-        sf::CircleShape selectedElementCircle(30); // Adjust the radius as needed
+        sf::CircleShape selectedElementCircle(30);
         bool hasSelected = false;
         while (periodicTableOpen)
         {
-            // check all the window's events that were triggered since the last iteration of the loop
             sandboxWindow.clear(white);
             value = slider1.getSliderValue();
             while (sandboxWindow.pollEvent(event))
@@ -634,21 +651,19 @@ int main() {
                     {
                         periodicTableOpen = false;
                         selectedElement.push_back(elements[i]);
-                        circle.setRadius(30); // Adjust the radius as needed
-                        circle.setPosition(mousePosition.x, mousePosition.y); // Adjust position as needed
+                        circle.setRadius(30);
+                        circle.setPosition(mousePosition.x, mousePosition.y);
                         circle.setFillColor(elements[i].backgroundColor);
 
                         circles.push_back(circle);
 
-                        selectedElementText.setFont(font); // Set the font as needed
-                        selectedElementText.setCharacterSize(20); // Set the character size as needed
-                        selectedElementText.setFillColor(elements[i].textColor); // Set the text color as needed
+                        selectedElementText.setFont(font);
+                        selectedElementText.setCharacterSize(20);
+                        selectedElementText.setFillColor(elements[i].textColor);
                         selectedElementText.setString(elements[i].symbol);
 
-                        // Set the position of the text to match the position of the circle
                         selectedElementText.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
 
-                        // Add the elementText to the elementSymbols vector
                         elementSymbols.push_back(selectedElementText);
                     }
 
@@ -657,14 +672,41 @@ int main() {
                     block.setFillColor(elements[i].backgroundColor);
                     block.setOutlineThickness(0);
                 }
+                for (int i = 0; i < numLanthanoids; i++) {
+                    int col = i + 3;
+                    sf::RectangleShape block(sf::Vector2f(elementWidth, elementHeight));
+                    block.setFillColor(lanthanoidsColor);
+                    block.setPosition(col * (elementWidth + gap), block.getSize().y + 600);
+
+                    sf::Text text("", font, 20);
+                    text.setString(elements[56 + i].symbol);
+                    text.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
+
+                    sandboxWindow.draw(block);
+                    sandboxWindow.draw(text);
+                }
+
+                for (int i = 0; i < numActinoids; i++) {
+                    int col = i + 3;
+                    sf::RectangleShape block(sf::Vector2f(elementWidth, elementHeight));
+                    block.setFillColor(actinoidsColor);
+                    block.setPosition(col * (elementWidth + gap), block.getSize().y + 670);
+
+                    sf::Text text("", font, 20);
+                    text.setString(elements[88 + i].symbol);
+                    text.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
+
+                    sandboxWindow.draw(block);
+                    sandboxWindow.draw(text);
+                }
                 slider1.draw(sandboxWindow);
                 sandboxWindow.draw(block);
                 sandboxWindow.draw(text);
             }
             sandboxWindow.display();
         }
-        int columnCount = 5;  // Number of columns in the table
-        int rowCount = (numberMolecules + columnCount - 1) / columnCount; // Calculate the number of rows
+        int columnCount = 5;
+        int rowCount = (numberMolecules + columnCount - 1) / columnCount;
         while (moleculesMenuOpen)
         {
             sandboxWindow.clear(white);
@@ -735,37 +777,3 @@ int main() {
     }
     return 0;
 }
-
-
-
-/*
-for (int i = 0; i < numLanthanoids; i++) {
-    int col = i + 3; // Adjust the column to position the Lanthanoids
-    sf::RectangleShape block(sf::Vector2f(elementWidth, elementHeight));
-    block.setFillColor(sf::Color::Blue);
-    block.setPosition(col * elementWidth, 7 * elementHeight); // Position below the main table
-
-    // Draw the element symbol
-    sf::Text text("", font, 20);
-    text.setString(elements[57 + i].symbol); // Start from atomic number 57 (La)
-    text.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
-
-    window.draw(block);
-    window.draw(text);
-}
-// Draw the Actinoid series (below the Lanthanoids)
-for (int i = 0; i < numActinoids; i++) {
-    int col = i + 3; // Adjust the column to position the Actinoids
-    sf::RectangleShape block(sf::Vector2f(elementWidth, elementHeight));
-    block.setFillColor(sf::Color::Blue);
-    block.setPosition(col * elementWidth, 8 * elementHeight); // Position below the Lanthanoids
-
-    // Draw the element symbol
-    sf::Text text("", font, 20);
-    text.setString(elements[89 + i].symbol); // Start from atomic number 89 (Ac)
-    text.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
-
-    window.draw(block);
-    window.draw(text);
-}
-*/
