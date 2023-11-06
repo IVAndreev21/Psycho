@@ -25,6 +25,19 @@ struct Molecule
     std::string name;
 };
 
+struct DraggableCircle {
+    sf::CircleShape shape;
+    bool isDragging;
+
+    DraggableCircle(float x, float y, float radius, sf::Color color)
+        : isDragging(false) {
+        shape.setPosition(x, y);
+        shape.setRadius(radius);
+        shape.setFillColor(color);
+        shape.setOrigin(radius, radius);
+    }
+};
+
 
 int getPeriod(int atomicNumber) {
     if (atomicNumber >= 1 && atomicNumber <= 2) {
@@ -185,7 +198,7 @@ sf::Text selectedElementText("", font, 20);
 sf::Text noReaction("", font, 30);
 sf::Text text2("", font, 20);
 sf::Text text3("", font, 20);
-
+sf::Text circleText("", font, 20);
 //sf::RectangleShapes
 sf::RectangleShape detailedView(sf::Vector2f(180, 180));
 sf::RectangleShape infoView(sf::Vector2f(250, 500));
@@ -241,11 +254,10 @@ int counter = 0;
 
 //vectors
 std::vector<Element> selectedElement;
-std::vector<sf::CircleShape> circles;
+std::vector<DraggableCircle> circles;
 std::vector<sf::Text> elementSymbols;
 
-//
-sf::CircleShape circle;
+
 
 Element elements[numElements] = {
     {"H", "Hydrogen", 1, 1.008, {1}, 2.20, -259.1, -252.9, 1766}, {"He", "Helium", 2, 4.002602, {2}, NULL, NULL, -269, 1895}, {"Li", "Lithium", 3, 6.94, {2,1}, 0.98, 180.54, 1342, 1817}, {"Be", "Beryllium", 4, 9.0121831, {2,2}, 1.57, 1287, 2470, 1797}, {"B", "Boron", 5, 10.81, {2,3}, 2.04, 2075, 4000, 1808},
@@ -320,6 +332,8 @@ int main() {
     optionsText.setString("Options");
     optionsText.setPosition(optionsButton.getPosition().x + 120, optionsButton.getPosition().y + 60);
     optionsText.setFillColor(black);
+
+    circleText.setFillColor(black);
 
     if (!font.loadFromFile("resources/fonts/arial.ttf")) {
         return 1;
@@ -544,23 +558,25 @@ int main() {
     {
         mousePosition = sf::Mouse::getPosition(sandboxWindow);
         sf::Event event;
-        while (sandboxWindow.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
+        while (sandboxWindow.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
                 sandboxWindow.close();
-            else if (event.mouseButton.button == sf::Mouse::Left)
-            {
-                for (size_t i = 0; i < circles.size(); i++)
-                {
-                    if (circles[i].getGlobalBounds().contains(mousePosition.x, mousePosition.y))
-                    {
-                        isDragging = true;
+            }
+            else if (event.type == sf::Event::MouseButtonPressed) {
+                if (event.mouseButton.button == sf::Mouse::Left) {
+                    for (size_t i = 0; i < circles.size(); i++) {
+                        if (circles[i].shape.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
+                            circles[i].isDragging = true;
+                        }
                     }
                 }
             }
-            else if (event.mouseButton.button == sf::Mouse::Right)
-            {
-                isDragging = false;
+            else if (event.type == sf::Event::MouseButtonReleased) {
+                if (event.mouseButton.button == sf::Mouse::Left) {
+                    for (size_t i = 0; i < circles.size(); i++) {
+                        circles[i].isDragging = false;
+                    }
+                }
             }
         }
         if (ptableIconSprite.getGlobalBounds().contains(mousePosition.x, mousePosition.y) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
@@ -579,8 +595,6 @@ int main() {
         {
             reactionsMenuOpen = true;
         }
-        sf::CircleShape selectedElementCircle(30);
-        bool hasSelected = false;
         while (periodicTableOpen)
         {
             sandboxWindow.clear(white);
@@ -668,20 +682,9 @@ int main() {
                     {
                         periodicTableOpen = false;
                         selectedElement.push_back(elements[i]);
-                        circle.setRadius(30);
-                        circle.setPosition(mousePosition.x, mousePosition.y);
-                        circle.setFillColor(elements[i].backgroundColor);
-
-                        circles.push_back(circle);
-
-                        selectedElementText.setFont(font);
-                        selectedElementText.setCharacterSize(20);
-                        selectedElementText.setFillColor(elements[i].textColor);
-                        selectedElementText.setString(elements[i].symbol);
-
-                        selectedElementText.setPosition(block.getPosition().x + 10, block.getPosition().y + 10);
-
-                        elementSymbols.push_back(selectedElementText);
+                        circles.emplace_back(100, 100, 30, elements[i].backgroundColor);
+                        circleText.setString(elements[i].symbol); // Set the text content
+                        elementSymbols.push_back(circleText);
                     }
 
                 }
@@ -850,16 +853,10 @@ int main() {
         }
 
         sandboxWindow.clear(white);
-        for (size_t i = 0; i < circles.size(); i++)
-        {
-            if (isDragging)
-            {
-                circles[i].setPosition(mousePosition.x, mousePosition.y);
+        for (size_t i = 0; i < circles.size(); i++) {
+            if (circles[i].isDragging) {
+                circles[i].shape.setPosition(mousePosition.x, mousePosition.y);
             }
-            sandboxWindow.draw(circles[i]);
-            elementSymbols[i].setPosition(circles[i].getPosition().x + 20, circles[i].getPosition().y + 20);
-
-            sandboxWindow.draw(elementSymbols[i]); // Draw the corresponding text
         }
 
         while (reactionsMenuOpen)
@@ -880,12 +877,19 @@ int main() {
             }
             sandboxWindow.display();
         }
+        for (size_t i = 0; i < circles.size(); i++) {
+            sf::FloatRect textBounds = elementSymbols[i].getLocalBounds();
+            elementSymbols[i].setOrigin(textBounds.left + textBounds.width / 2.0f, textBounds.top + textBounds.height / 2.0f);
+            elementSymbols[i].setPosition(circles[i].shape.getPosition());
+
+            sandboxWindow.draw(circles[i].shape);
+            sandboxWindow.draw(elementSymbols[i]);
+        }
         sandboxWindow.draw(navbar);
         sandboxWindow.draw(ptableIconSprite);
         sandboxWindow.draw(settingsIconSprite);
         sandboxWindow.draw(moleculesIconSprite);
         sandboxWindow.draw(reactionsIconSprite);
-        sandboxWindow.draw(selectedElementCircle);
         sandboxWindow.display();
     }
     return 0;
