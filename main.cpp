@@ -257,8 +257,8 @@ int counter = 0;
 std::vector<Element> selectedElement;
 std::vector<DraggableCircle> circles;
 std::vector<sf::Text> elementSymbols;
-
-
+std::vector<sf::Vertex> lines;
+std::vector<sf::Vector2f> singleCircles;
 
 Element elements[numElements] = {
     {"H", "Hydrogen", 1, 1.008, {1}, 2.20, -259.1, -252.9, 1766}, {"He", "Helium", 2, 4.002602, {2}, NULL, NULL, -269, 1895}, {"Li", "Lithium", 3, 6.94, {2,1}, 0.98, 180.54, 1342, 1817}, {"Be", "Beryllium", 4, 9.0121831, {2,2}, 1.57, 1287, 2470, 1797}, {"B", "Boron", 5, 10.81, {2,3}, 2.04, 2075, 4000, 1808},
@@ -310,6 +310,7 @@ int main() {
 
     sandboxModeButton.setPosition(sf::Vector2f(50, 350.0f));
     sandboxModeButton.setSize(sf::Vector2f(450.0f, 150.0f));
+    sandboxWindow.setFramerateLimit(60);
 
     questModeButton.setPosition(sf::Vector2f(50.0f, 550.0f));
     questModeButton.setSize(sf::Vector2f(450.0f, 150.0f));
@@ -684,7 +685,7 @@ int main() {
                         periodicTableOpen = false;
                         selectedElement.push_back(elements[i]);
                         circles.emplace_back(100, 100, 30, elements[i].backgroundColor);
-                        circleText.setString(elements[i].symbol); // Set the text content
+                        circleText.setString(elements[i].symbol);
                         elementSymbols.push_back(circleText);
                     }
 
@@ -882,6 +883,20 @@ int main() {
 
             sandboxWindow.draw(circles[i].shape);
             sandboxWindow.draw(elementSymbols[i]);
+        }
+
+        if (selectedElement.size() >= 2) {
+            for (size_t i = 1; i < circles.size(); ++i) {
+                // Check if the current and previous selected elements are the same
+                if (selectedElement[i].symbol == selectedElement[i - 1].symbol) {
+                    // Draw a line between the current and previous circles
+                    sf::Vertex line[] = {
+                        sf::Vertex(circles[i - 1].shape.getPosition(), sf::Color::Black),
+                        sf::Vertex(circles[i].shape.getPosition(), sf::Color::Black)
+                    };
+                    sandboxWindow.draw(line, 2, sf::Lines);
+                }
+            }
         }
         sandboxWindow.draw(navbar);
         sandboxWindow.draw(ptableIconSprite);
