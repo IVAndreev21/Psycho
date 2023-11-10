@@ -875,8 +875,10 @@ int main() {
         float lineThickness = 5.0f;
         if (selectedElement.size() >= 2) {
             for (size_t i = 1; i < selectedElement.size(); ++i) {
-                if (selectedElement[i].symbol == selectedElement[i - 1].symbol)
-                {
+                bool hasIndex2Prev = std::find(moleculesIndex2.begin(), moleculesIndex2.end(), selectedElement[i - 1].atomicNumber) != moleculesIndex2.end();
+                bool hasIndex2Curr = std::find(moleculesIndex2.begin(), moleculesIndex2.end(), selectedElement[i].atomicNumber) != moleculesIndex2.end();
+
+                if (selectedElement[i].symbol == selectedElement[i - 1].symbol && hasIndex2Prev && hasIndex2Curr) {
                     // Calculate the delta between current and previous circles
                     sf::Vector2f delta = circles[i].shape.getPosition() - circles[i - 1].shape.getPosition();
                     float length = std::sqrt(delta.x * delta.x + delta.y * delta.y);
