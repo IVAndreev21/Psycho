@@ -227,6 +227,8 @@ bool moleculesMenuOpen = false;
 bool reactionsMenuOpen = false;
 bool isReactionAvailable = false;
 bool isDragging = false;
+bool isMolecule = false;
+bool hasIndex2 = false;
 
 
 //sf::textures
@@ -259,6 +261,7 @@ std::vector<DraggableCircle> circles;
 std::vector<sf::Text> elementSymbols;
 std::vector<sf::Vertex> lines;
 std::vector<sf::Vector2f> singleCircles;
+std::vector<Molecule> molecules;
 
 Element elements[numElements] = {
     {"H", "Hydrogen", 1, 1.008, {1}, 2.20, -259.1, -252.9, 1766}, {"He", "Helium", 2, 4.002602, {2}, NULL, NULL, -269, 1895}, {"Li", "Lithium", 3, 6.94, {2,1}, 0.98, 180.54, 1342, 1817}, {"Be", "Beryllium", 4, 9.0121831, {2,2}, 1.57, 1287, 2470, 1797}, {"B", "Boron", 5, 10.81, {2,3}, 2.04, 2075, 4000, 1808},
@@ -302,9 +305,8 @@ const std::vector<int> allkaliMetals = { elements[1].atomicNumber, elements[9].a
 const std::vector<int> unknown = { elements[107].atomicNumber, elements[108].atomicNumber, elements[109].atomicNumber, elements[110].atomicNumber, elements[111].atomicNumber, elements[112].atomicNumber, elements[113].atomicNumber , elements[114].atomicNumber , elements[115].atomicNumber , elements[116].atomicNumber };
 std::vector<int> lanthanoids;
 std::vector<int> actinoids;
-Molecule molecules[numberMolecules] = {
-    {"H2O", "Water"}, {"O2", "Oxygen"}, {"CO2", "Carbon Dioxide"}, {"C6H1206", "Glucose"},{"C8H10N4O2","Caffeine"},{"CH4", "Methane"},{"C2H5OH", "Ethanol"}, {"NaCl", "Salt"}, {"N2", "Nitrogen"}, {"H2O2", "Hydrogen Peroxide"}, {"CO", "Carbon Monoxide"}, {"H2SO4", "Sulfuric Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Aci"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"}, {"CH3COOH", "Acetic Acid"},
-};
+
+const std::vector<int> moleculesIndex2 = { elements[0].atomicNumber, elements[6].atomicNumber, elements[7].atomicNumber, elements[8].atomicNumber, elements[16].atomicNumber, elements[34].atomicNumber, elements[52].atomicNumber };
 int main() {
     mainMenuWindow.create(sf::VideoMode(1280, 1024), "Psycho");
 
@@ -687,6 +689,21 @@ int main() {
                         circles.emplace_back(100, 100, 30, elements[i].backgroundColor);
                         circleText.setString(elements[i].symbol);
                         elementSymbols.push_back(circleText);
+                        if (selectedElement.size() >= 2) {
+                            if (selectedElement[selectedElement.size() - 1].symbol == selectedElement[selectedElement.size() - 2].symbol){
+                                for (int k = 0; k < moleculesIndex2.size(); k++)
+                                {
+                                    if (selectedElement[selectedElement.size() - 1].atomicNumber == moleculesIndex2[k])
+                                    {
+                                        Molecule newMolecule;
+                                        newMolecule.abberviation = elements[i].symbol + "2\t";
+                                        molecules.push_back(newMolecule);
+                                        hasIndex2 = true;
+                                        
+                                    }
+                                }
+                            }
+                        }
                     }
 
                 }
@@ -821,35 +838,6 @@ int main() {
         }
         int columnCount = 5;
         int rowCount = (numberMolecules + columnCount - 1) / columnCount;
-        while (moleculesMenuOpen)
-        {
-            sandboxWindow.clear(white);
-            while (sandboxWindow.pollEvent(event))
-            {
-                if (event.type == sf::Event::Closed)
-                {
-                    moleculesMenuOpen = false;
-                }
-            }
-            float cellWidth = sandboxWindow.getSize().x / columnCount;
-            float cellHeight = sandboxWindow.getSize().y / rowCount;
-            for (int i = 0; i < numberMolecules; i++)
-            {
-                row = i / columnCount;
-                col = i % columnCount;
-                sf::RectangleShape rectangle(sf::Vector2f(200, 100));
-                rectangle.setFillColor(blue);
-                rectangle.setPosition(col* cellWidth, row* cellHeight);
-
-                moleculeInfoText.setString("Name: " + molecules[i].name + "\nAbbreviation: " + molecules[i].abberviation);
-                moleculeInfoText.setFillColor(white);
-                moleculeInfoText.setPosition(col* cellWidth + 10, row* cellHeight + 10);
-                sandboxWindow.draw(rectangle);
-                sandboxWindow.draw(moleculeInfoText);
-
-            }
-            sandboxWindow.display();
-        }
 
         sandboxWindow.clear(white);
         for (size_t i = 0; i < circles.size(); i++) {
@@ -884,19 +872,36 @@ int main() {
             sandboxWindow.draw(circles[i].shape);
             sandboxWindow.draw(elementSymbols[i]);
         }
-
+        float lineThickness = 5.0f;
         if (selectedElement.size() >= 2) {
-            for (size_t i = 1; i < circles.size(); ++i) {
-                // Check if the current and previous selected elements are the same
-                if (selectedElement[i].symbol == selectedElement[i - 1].symbol) {
-                    // Draw a line between the current and previous circles
-                    sf::Vertex line[] = {
-                        sf::Vertex(circles[i - 1].shape.getPosition(), sf::Color::Black),
-                        sf::Vertex(circles[i].shape.getPosition(), sf::Color::Black)
-                    };
-                    sandboxWindow.draw(line, 2, sf::Lines);
+            for (size_t i = 1; i < selectedElement.size(); ++i) {
+                if (selectedElement[i].symbol == selectedElement[i - 1].symbol)
+                {
+                    // Calculate the delta between current and previous circles
+                    sf::Vector2f delta = circles[i].shape.getPosition() - circles[i - 1].shape.getPosition();
+                    float length = std::sqrt(delta.x * delta.x + delta.y * delta.y);
+
+                    // Calculate the rotation angle for the line
+                    float rotation = std::atan2(delta.y, delta.x) * 180.0f / 3.14159265f;
+
+                    // Draw a thicker line between the current and previous circles
+                    sf::RectangleShape line;
+                    line.setSize(sf::Vector2f(length, lineThickness));
+                    line.setOrigin(0, lineThickness / 2.0f);
+                    line.setPosition(circles[i - 1].shape.getPosition());
+                    line.setRotation(rotation);
+                    line.setFillColor(black);
+                    sandboxWindow.draw(line);
                 }
             }
+        }
+
+        for (int i = 0; i < molecules.size(); i++)
+        {
+            sf::Text test("", font, 20);
+            test.setString(molecules[i].abberviation);
+            test.setFillColor(black);
+            sandboxWindow.draw(test);
         }
         sandboxWindow.draw(navbar);
         sandboxWindow.draw(ptableIconSprite);
