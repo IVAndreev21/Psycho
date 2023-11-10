@@ -252,9 +252,6 @@ sf::RenderWindow periodicTableWindow;
 sf::RenderWindow sandboxWindow;
 sf::RenderWindow mainMenuWindow;
 
-//counters
-int counter = 0;
-
 //vectors
 std::vector<Element> selectedElement;
 std::vector<DraggableCircle> circles;
@@ -303,11 +300,9 @@ std::vector<int> transitionMetals;
 const std::vector<int> allkalineEarthMetals = { elements[2].atomicNumber, elements[10].atomicNumber, elements[18].atomicNumber, elements[36].atomicNumber, elements[54].atomicNumber, elements[86].atomicNumber };
 const std::vector<int> allkaliMetals = { elements[1].atomicNumber, elements[9].atomicNumber, elements[17].atomicNumber, elements[35].atomicNumber, elements[53].atomicNumber, elements[85].atomicNumber };
 const std::vector<int> unknown = { elements[107].atomicNumber, elements[108].atomicNumber, elements[109].atomicNumber, elements[110].atomicNumber, elements[111].atomicNumber, elements[112].atomicNumber, elements[113].atomicNumber , elements[114].atomicNumber , elements[115].atomicNumber , elements[116].atomicNumber };
-std::vector<int> lanthanoids;
-std::vector<int> actinoids;
-
 const std::vector<int> moleculesIndex2 = { elements[0].atomicNumber, elements[6].atomicNumber, elements[7].atomicNumber, elements[8].atomicNumber, elements[16].atomicNumber, elements[34].atomicNumber, elements[52].atomicNumber };
-int main() {
+std::vector<int> lanthanoids;
+std::vector<int> actinoids;int main() {
     mainMenuWindow.create(sf::VideoMode(1280, 1024), "Psycho");
 
     sandboxModeButton.setPosition(sf::Vector2f(50, 350.0f));
