@@ -19,11 +19,6 @@ struct Element {
     std::string series;
 };
 
-struct Molecule
-{
-    std::string abberviation;
-    std::string name;
-};
 
 struct DraggableCircle {
     sf::CircleShape shape;
@@ -38,6 +33,11 @@ struct DraggableCircle {
     }
 };
 
+struct Molecule
+{
+    std::string abberviation;
+    std::string name;
+};
 struct Connection {
     int index1;
     int index2;
@@ -876,52 +876,58 @@ int main() {
             sandboxWindow.draw(circles[i].shape);
             sandboxWindow.draw(elementSymbols[i]);
         }
+
         float lineThickness = 5.0f;
         bool connected = false;
+
+        float distanceBetweenElements = 100.0f;
+        std::vector<bool> isElementConnected(selectedElement.size(), false);
+
         if (selectedElement.size() >= 2) {
-            // Check for connections and store them
-            for (int i = 0; i < selectedElement.size(); ++i) {
-                for (int j = i + 1; j < selectedElement.size(); ++j) {
-                    if (selectedElement[i].symbol == selectedElement[j].symbol &&
-                        std::find(moleculesIndex2.begin(), moleculesIndex2.end(), selectedElement[i].atomicNumber) != moleculesIndex2.end() &&
-                        std::find(moleculesIndex2.begin(), moleculesIndex2.end(), selectedElement[j].atomicNumber) != moleculesIndex2.end()) {
-                        // Store the indices of connected circles
-                        connections.push_back({ i, j });
-                        if (circles.size() >= 2)
-                        {
-                            for (int k = 0; k < circles.size(); k++)
-                            {
-                                circles[circles.size() - 2].shape.setPosition(circles[circles.size() - 1].shape.getPosition().x + 100, circles[circles.size() - 1].shape.getPosition().y);
-                            }
+            for (int i = 0; i < selectedElement.size() - 1; ++i) {
+                if (!isElementConnected[i]) {
+                    for (int j = i + 1; j < selectedElement.size(); ++j) {
+                        if (!isElementConnected[j] &&
+                            selectedElement[i].symbol == selectedElement[j].symbol &&
+                            std::find(moleculesIndex2.begin(), moleculesIndex2.end(), selectedElement[i].atomicNumber) != moleculesIndex2.end() &&
+                            std::find(moleculesIndex2.begin(), moleculesIndex2.end(), selectedElement[j].atomicNumber) != moleculesIndex2.end()) {
+
+
+                            connections.push_back({ i, j });
+                            isElementConnected[i] = true;
+                            isElementConnected[j] = true;
+
+
+                            float xOffset = distanceBetweenElements * (j - i);
+                            circles[j].shape.setPosition(circles[i].shape.getPosition().x + xOffset, circles[i].shape.getPosition().y);
+
+                            break;
                         }
                     }
                 }
             }
 
-                for (const Connection& connection : connections) {
 
-                    int i = connection.index1;
-                    int j = connection.index2;
+            for (const auto& connection : connections) {
+                int i = connection.index1;
+                int j = connection.index2;
 
-                    // Calculate the delta between current and previous circles
-                    sf::Vector2f delta = circles[j].shape.getPosition() - circles[i].shape.getPosition();
-                    float length = std::sqrt(delta.x * delta.x + delta.y * delta.y);
 
-                    // Calculate the rotation angle for the line
-                    float rotation = std::atan2(delta.y, delta.x) * 180.0f / 3.14159265f;
+                sf::Vector2f delta = circles[j].shape.getPosition() - circles[i].shape.getPosition();
+                float length = std::sqrt(delta.x * delta.x + delta.y * delta.y);
 
-                    // Draw a line between circles with the same symbols
-                    sf::RectangleShape line;
-                    line.setSize(sf::Vector2f(length, lineThickness));
-                    line.setOrigin(0, lineThickness / 2.0f);
-                    line.setPosition(circles[i].shape.getPosition());
-                    line.setRotation(rotation);
-                    line.setFillColor(black); // Assuming 'black' is an sf::Color variable
-                    sandboxWindow.draw(line);
-                }
 
+                float rotation = std::atan2(delta.y, delta.x) * 180.0f / 3.14159265f;
+
+                sf::RectangleShape line;
+                line.setSize(sf::Vector2f(length, lineThickness));
+                line.setOrigin(0, lineThickness / 2.0f);
+                line.setPosition(circles[i].shape.getPosition());
+                line.setRotation(rotation);
+                line.setFillColor(black);
+                sandboxWindow.draw(line);
             }
-
+        }
 
 
         for (int i = 0; i < molecules.size(); i++)
