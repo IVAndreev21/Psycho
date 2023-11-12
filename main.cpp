@@ -887,6 +887,13 @@ int main() {
                         std::find(moleculesIndex2.begin(), moleculesIndex2.end(), selectedElement[j].atomicNumber) != moleculesIndex2.end()) {
                         // Store the indices of connected circles
                         connections.push_back({ i, j });
+                        if (circles.size() >= 2)
+                        {
+                            for (int k = 0; k < circles.size(); k++)
+                            {
+                                circles[circles.size() - 2].shape.setPosition(circles[circles.size() - 1].shape.getPosition().x + 100, circles[circles.size() - 1].shape.getPosition().y);
+                            }
+                        }
                     }
                 }
             }
