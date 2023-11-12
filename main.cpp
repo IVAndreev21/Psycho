@@ -38,6 +38,11 @@ struct DraggableCircle {
     }
 };
 
+struct Connection {
+    int index1;
+    int index2;
+};
+
 
 int getPeriod(int atomicNumber) {
     if (atomicNumber >= 1 && atomicNumber <= 2) {
@@ -146,6 +151,11 @@ int getGroup(int i) {
         return 20;
     }
 }
+std::string isPredefinedReaction(std::string reactants, std::string intermediates)
+{
+    if (reactants == "H2" && intermediates == "2O2") return "2H2O";
+    else return "";
+}
 
 //Constant variables
 const int numElements = 118;
@@ -185,7 +195,6 @@ sf::Color darkGrey(169, 169, 169);
 
 //Fonts
 sf::Font font;
-
 //sf::Texts
 sf::Text elementSymbolText("", font, 20);
 sf::Text zoomViewText("", font, 35);
@@ -259,6 +268,9 @@ std::vector<sf::Text> elementSymbols;
 std::vector<sf::Vertex> lines;
 std::vector<sf::Vector2f> singleCircles;
 std::vector<Molecule> molecules;
+std::vector<Molecule> predefinedReactions;
+std::vector<Connection> connections;
+
 
 Element elements[numElements] = {
     {"H", "Hydrogen", 1, 1.008, {1}, 2.20, -259.1, -252.9, 1766}, {"He", "Helium", 2, 4.002602, {2}, NULL, NULL, -269, 1895}, {"Li", "Lithium", 3, 6.94, {2,1}, 0.98, 180.54, 1342, 1817}, {"Be", "Beryllium", 4, 9.0121831, {2,2}, 1.57, 1287, 2470, 1797}, {"B", "Boron", 5, 10.81, {2,3}, 2.04, 2075, 4000, 1808},
@@ -302,9 +314,9 @@ const std::vector<int> allkaliMetals = { elements[1].atomicNumber, elements[9].a
 const std::vector<int> unknown = { elements[107].atomicNumber, elements[108].atomicNumber, elements[109].atomicNumber, elements[110].atomicNumber, elements[111].atomicNumber, elements[112].atomicNumber, elements[113].atomicNumber , elements[114].atomicNumber , elements[115].atomicNumber , elements[116].atomicNumber };
 const std::vector<int> moleculesIndex2 = { elements[0].atomicNumber, elements[6].atomicNumber, elements[7].atomicNumber, elements[8].atomicNumber, elements[16].atomicNumber, elements[34].atomicNumber, elements[52].atomicNumber };
 std::vector<int> lanthanoids;
-std::vector<int> actinoids;int main() {
+std::vector<int> actinoids;
+int main() {
     mainMenuWindow.create(sf::VideoMode(1280, 1024), "Psycho");
-
     sandboxModeButton.setPosition(sf::Vector2f(50, 350.0f));
     sandboxModeButton.setSize(sf::Vector2f(450.0f, 150.0f));
     sandboxWindow.setFramerateLimit(60);
@@ -850,13 +862,10 @@ std::vector<int> actinoids;int main() {
                 reactionsMenuOpen = false;
             }
             sandboxWindow.clear(white);
-            if (!isReactionAvailable)
-            {
                 noReactionText.setString("There is no available reactions");
                 noReactionText.setPosition(sandboxWindow.getSize().x / 2, sandboxWindow.getSize().y / 2);
                 noReactionText.setFillColor(black);
                 sandboxWindow.draw(noReactionText);
-            }
             sandboxWindow.display();
         }
         for (size_t i = 0; i < circles.size(); i++) {
@@ -868,30 +877,45 @@ std::vector<int> actinoids;int main() {
             sandboxWindow.draw(elementSymbols[i]);
         }
         float lineThickness = 5.0f;
+        bool connected = false;
         if (selectedElement.size() >= 2) {
-            for (size_t i = 1; i < selectedElement.size(); ++i) {
-                bool hasIndex2Prev = std::find(moleculesIndex2.begin(), moleculesIndex2.end(), selectedElement[i - 1].atomicNumber) != moleculesIndex2.end();
-                bool hasIndex2Curr = std::find(moleculesIndex2.begin(), moleculesIndex2.end(), selectedElement[i].atomicNumber) != moleculesIndex2.end();
+            // Check for connections and store them
+            for (int i = 0; i < selectedElement.size(); ++i) {
+                for (int j = i + 1; j < selectedElement.size(); ++j) {
+                    if (selectedElement[i].symbol == selectedElement[j].symbol &&
+                        std::find(moleculesIndex2.begin(), moleculesIndex2.end(), selectedElement[i].atomicNumber) != moleculesIndex2.end() &&
+                        std::find(moleculesIndex2.begin(), moleculesIndex2.end(), selectedElement[j].atomicNumber) != moleculesIndex2.end()) {
+                        // Store the indices of connected circles
+                        connections.push_back({ i, j });
+                    }
+                }
+            }
 
-                if (selectedElement[i].symbol == selectedElement[i - 1].symbol && hasIndex2Prev && hasIndex2Curr) {
+                for (const Connection& connection : connections) {
+
+                    int i = connection.index1;
+                    int j = connection.index2;
+
                     // Calculate the delta between current and previous circles
-                    sf::Vector2f delta = circles[i].shape.getPosition() - circles[i - 1].shape.getPosition();
+                    sf::Vector2f delta = circles[j].shape.getPosition() - circles[i].shape.getPosition();
                     float length = std::sqrt(delta.x * delta.x + delta.y * delta.y);
 
                     // Calculate the rotation angle for the line
                     float rotation = std::atan2(delta.y, delta.x) * 180.0f / 3.14159265f;
 
-                    // Draw a thicker line between the current and previous circles
+                    // Draw a line between circles with the same symbols
                     sf::RectangleShape line;
                     line.setSize(sf::Vector2f(length, lineThickness));
                     line.setOrigin(0, lineThickness / 2.0f);
-                    line.setPosition(circles[i - 1].shape.getPosition());
+                    line.setPosition(circles[i].shape.getPosition());
                     line.setRotation(rotation);
-                    line.setFillColor(black);
+                    line.setFillColor(black); // Assuming 'black' is an sf::Color variable
                     sandboxWindow.draw(line);
                 }
+
             }
-        }
+
+
 
         for (int i = 0; i < molecules.size(); i++)
         {
