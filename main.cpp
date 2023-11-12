@@ -43,6 +43,12 @@ struct Connection {
     int index2;
 };
 
+struct Reaction
+{
+    std::string reactant1;
+    std::string reactant2;
+    std::string product;
+};
 
 int getPeriod(int atomicNumber) {
     if (atomicNumber >= 1 && atomicNumber <= 2) {
@@ -151,11 +157,7 @@ int getGroup(int i) {
         return 20;
     }
 }
-std::string isPredefinedReaction(std::string reactants, std::string intermediates)
-{
-    if (reactants == "H2" && intermediates == "2O2") return "2H2O";
-    else return "";
-}
+
 
 //Constant variables
 const int numElements = 118;
@@ -164,6 +166,7 @@ const int elementHeight = 60;
 const int numLanthanoids = 14;
 const int numActinoids = 14;
 const int numberMolecules = 35;
+const int numPredefinedReactions = 8;
 const float gap = 1;
 
 //Changable values
@@ -238,6 +241,7 @@ bool isReactionAvailable = false;
 bool isDragging = false;
 bool isMolecule = false;
 bool hasIndex2 = false;
+bool reactionAvailable = false;
 
 
 //sf::textures
@@ -299,6 +303,7 @@ Element elements[numElements] = {
     {"Mc","Moscovium", 115, 290, {2,8,18,32,32,18,5}, NULL, NULL, NULL, 2004}, {"Lv", "Livermorium", 116, 293, {2,8,18,32,32,18,6}, NULL , NULL, NULL, 2000}, {"Ts", "Tennessine", 117, 294, {2,8,18,32,32,18,7}, NULL, NULL, NULL, 2010}, {"Og", "Oganesson", 118, 294, {2,8,18,32,32,18,8}, NULL, NULL, NULL , 2006}
 };
 
+
 //Non Metals
 const std::vector<int> reactiveNonMetals = { elements[-2].atomicNumber, elements[4].atomicNumber, elements[5].atomicNumber, elements[6].atomicNumber, elements[7].atomicNumber, elements[13].atomicNumber, elements[14].atomicNumber, elements[15].atomicNumber, elements[32].atomicNumber, elements[33].atomicNumber, elements[51].atomicNumber };
 const std::vector<int> nobleGases = { elements[0].atomicNumber, elements[8].atomicNumber, elements[16].atomicNumber, elements[34].atomicNumber, elements[52].atomicNumber, elements[84].atomicNumber };
@@ -315,6 +320,12 @@ const std::vector<int> unknown = { elements[107].atomicNumber, elements[108].ato
 const std::vector<int> moleculesIndex2 = { elements[0].atomicNumber, elements[6].atomicNumber, elements[7].atomicNumber, elements[8].atomicNumber, elements[16].atomicNumber, elements[34].atomicNumber, elements[52].atomicNumber };
 std::vector<int> lanthanoids;
 std::vector<int> actinoids;
+
+Reaction reactions[numPredefinedReactions]
+{
+    {"H","H","2H"},{"O","O","O2"},{"N","N","2N"},{"Cl","Cl","Cl2"},{"Br","Br","Br2"},{"I","I","I2"},{"F","F","F2"}, {"2H2", "O2", "2H2O"}
+};
+
 int main() {
     mainMenuWindow.create(sf::VideoMode(1280, 1024), "Psycho");
     sandboxModeButton.setPosition(sf::Vector2f(50, 350.0f));
@@ -853,19 +864,76 @@ int main() {
             }
         }
 
-        while (reactionsMenuOpen)
-        {
+        while (reactionsMenuOpen) {
             sf::Event event;
-            while (sandboxWindow.pollEvent(event))
-            {
+            while (sandboxWindow.pollEvent(event)) {
                 if (event.type == sf::Event::Closed)
-                reactionsMenuOpen = false;
+                    reactionsMenuOpen = false;
             }
-            sandboxWindow.clear(white);
-                noReactionText.setString("There is no available reactions");
-                noReactionText.setPosition(sandboxWindow.getSize().x / 2, sandboxWindow.getSize().y / 2);
+            sandboxWindow.clear(sf::Color(125, 124, 124));
+
+            const float xOffset = 10.0f;  // Initial x-position
+            const float yOffset = 10.0f;  // Initial y-position
+            const float spacingX = 20.0f; // Space between rectangles in x-direction
+            const float spacingY = 20.0f; // Space between rectangles in y-direction
+            float currentX = xOffset;
+            float currentY = yOffset;
+
+            if (selectedElement.size() >= 2) {
+                for (size_t i = 0; i < selectedElement.size() - 1; ++i) {
+                    for (size_t j = i + 1; j < selectedElement.size(); ++j) {
+                        std::string reactant1 = selectedElement[i].symbol;
+                        std::string reactant2 = selectedElement[j].symbol;
+
+                        // Check if the selected elements form a predefined reaction
+                        for (int k = 0; k < numPredefinedReactions; ++k) {
+                            if ((reactions[k].reactant1 == reactant1 && reactions[k].reactant2 == reactant2) ||
+                                (reactions[k].reactant1 == reactant2 && reactions[k].reactant2 == reactant1)) {
+                                reactionAvailable = true;
+                                // Create a rectangle shape
+                                sf::RectangleShape reactionRect(sf::Vector2f(200, 100));
+                                reactionRect.setPosition(currentX, currentY);
+                                reactionRect.setFillColor(black);
+
+                                // Create text for reactants and product
+                                sf::Text reactionText;
+                                reactionText.setFont(font); // Assuming you've loaded the font already
+                                reactionText.setString("Reaction: " + reactant1 + " + " + reactant2 + " -> " + reactions[k].product);
+                                reactionText.setCharacterSize(16);
+                                reactionText.setPosition(currentX + 10, currentY + 10);
+                                reactionText.setFillColor(white);
+
+                                // Draw the rectangle and text
+                                sandboxWindow.draw(reactionRect);
+                                sandboxWindow.draw(reactionText);
+
+                                // Update the current position for the next rectangle
+                                currentX += reactionRect.getSize().x + spacingX;
+
+                                // Check if the next rectangle will exceed the window width
+                                if (currentX + reactionRect.getSize().x + spacingX > sandboxWindow.getSize().x) {
+                                    currentX = xOffset;  // Reset x-position
+                                    currentY += reactionRect.getSize().y + spacingY;  // Move to the next line
+                                }
+
+                                // You can break out of the loop since you found a match
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            if(!reactionAvailable) {
+                // Display a message if there are not enough selected elements
+                sf::Text noReactionText;
+                noReactionText.setFont(font);
+                noReactionText.setString("There is no available reaction with the selected elements.");
+                noReactionText.setCharacterSize(16);
+                noReactionText.setPosition(xOffset, yOffset);
                 noReactionText.setFillColor(black);
                 sandboxWindow.draw(noReactionText);
+            }
+
             sandboxWindow.display();
         }
         for (size_t i = 0; i < circles.size(); i++) {
@@ -914,6 +982,7 @@ int main() {
 
 
                 sf::Vector2f delta = circles[j].shape.getPosition() - circles[i].shape.getPosition();
+
                 float length = std::sqrt(delta.x * delta.x + delta.y * delta.y);
 
 
