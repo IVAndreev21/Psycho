@@ -9,6 +9,9 @@ Slider::Slider(int x, int y)
 	axisWidth = 700;
 	sliderWidth = 20;
 	sliderHeight = 30;
+	maxValue = 0;
+	minValue = 0;
+	sliderValue = 0;
 
 	if (!font.loadFromFile("resources/fonts/arial.ttf"))
 		std::cout << "Error loading font\n";

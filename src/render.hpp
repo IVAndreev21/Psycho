@@ -96,7 +96,7 @@ private:
     std::vector<sf::Vertex> lines;
     std::vector<sf::Vector2f> singleCircles;
     std::vector<Molecule> molecules;
-
+    sf::RectangleShape block;
     bool hasIndex2;
 
 public:
@@ -106,6 +106,9 @@ public:
     void sandboxWindow(sf::RenderWindow& sandboxWindow, bool& isSandboxWindowOpen);
     void InitialiseTextures();
     void UnloadTextures();
-    Element getElement(int index);
+    Element& getElement(int index);
 
 };
+
+int getPeriod(int atomicNumber);
+int getGroup(int i);

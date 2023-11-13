@@ -1,7 +1,116 @@
 #include "render.hpp"
 
 
-Element Render::getElement(int index)
+int getPeriod(int atomicNumber) {
+    if (atomicNumber >= 1 && atomicNumber <= 2) {
+        return 1;
+    }
+    else if (atomicNumber >= 3 && atomicNumber <= 10) {
+        return 2;
+    }
+    else if (atomicNumber >= 11 && atomicNumber <= 18) {
+        return 3;
+    }
+    else if (atomicNumber >= 19 && atomicNumber <= 36) {
+        return 4;
+    }
+    else if (atomicNumber >= 37 && atomicNumber <= 54) {
+        return 5;
+    }
+    else if (atomicNumber >= 55 && atomicNumber <= 86) {
+        return 6;
+    }
+    else if (atomicNumber >= 87 && atomicNumber <= 118) {
+        return 7;
+    }
+    return 0;
+}
+
+int getGroup(int i) {
+    if (i == 1 || i == 3 || i == 11 || i == 19 || i == 37 || i == 55 || i == 87)
+    {
+        return 1;
+    }
+    else if (i == 4 || i == 12 || i == 20 || i == 38 || i == 56 || i == 88)
+    {
+        return 2;
+    }
+    else if (i == 21 || i == 39)
+    {
+        return 3;
+    }
+    else if (i == 22 || i == 40 || i == 72 || i == 104)
+    {
+        return 4;
+    }
+    else if (i == 23 || i == 41 || i == 73 || i == 105)
+    {
+        return 5;
+    }
+    else if (i == 24 || i == 42 || i == 74 || i == 106)
+    {
+        return 6;
+    }
+    else if (i == 25 || i == 43 || i == 75 || i == 107)
+    {
+        return 7;
+    }
+    else if (i == 26 || i == 44 || i == 76 || i == 108)
+    {
+        return 8;
+    }
+    else if (i == 27 || i == 45 || i == 77 || i == 109)
+    {
+        return 9;
+    }
+    else if (i == 28 || i == 46 || i == 78 || i == 110)
+    {
+        return 10;
+    }
+    else if (i == 29 || i == 47 || i == 79 || i == 111)
+    {
+        return 11;
+    }
+    else if (i == 30 || i == 48 || i == 80 || i == 112)
+    {
+        return 12;
+    }
+    else if (i == 5 || i == 13 || i == 31 || i == 49 || i == 81 || i == 113)
+    {
+        return 13;
+    }
+    else if (i == 6 || i == 14 || i == 32 || i == 50 || i == 82 || i == 114)
+    {
+        return 14;
+    }
+    else if (i == 7 || i == 15 || i == 33 || i == 51 || i == 83 || i == 115)
+    {
+        return 15;
+    }
+    else if (i == 8 || i == 16 || i == 34 || i == 52 || i == 84 || i == 116)
+    {
+        return 16;
+    }
+    else if (i == 9 || i == 17 || i == 35 || i == 53 || i == 85 || i == 117)
+    {
+        return 17;
+    }
+    else if (i == 2 || i == 10 || i == 18 || i == 36 || i == 54 || i == 86 || i == 118)
+    {
+        return 18;
+    }
+    else if (i <= 57 && i >= 71)
+    {
+        return 19;
+    }
+    else if (i <= 89 && i >= 103)
+    {
+        return 20;
+    }
+}
+
+
+Element& Render::getElement(int index)
 {
     static Element getElement[118] = {
     {"H", "Hydrogen", 1, 1.008, {1}, 2.20, -259.1, -252.9, 1766}, {"He", "Helium", 2, 4.002602, {2}, NULL, NULL, -269, 1895}, {"Li", "Lithium", 3, 6.94, {2,1}, 0.98, 180.54, 1342, 1817}, {"Be", "Beryllium", 4, 9.0121831, {2,2}, 1.57, 1287, 2470, 1797}, {"B", "Boron", 5, 10.81, {2,3}, 2.04, 2075, 4000, 1808},
@@ -34,6 +143,17 @@ Element Render::getElement(int index)
 Render::Render()
 {
     textures = new Textures;
+    energyLevels = 0;
+    value = 0;
+    row = 0;
+    col = 0;
+    hasIndex2 = false;
+    moleculesMenuOpen = false;
+    settingsMenuOpen = false;
+    reactionsMenuOpen = false;
+    periodicTableOpen = false;
+    moleculesMenuOpen = false;
+
 }
 
 void Render::InitialiseTextures()
@@ -246,7 +366,8 @@ void::Render::sandboxWindow(sf::RenderWindow& sandboxWindow, bool& sandboxWindow
     const std::vector<int> allkaliMetals = { getElement(1).atomicNumber, getElement(9).atomicNumber, getElement(17).atomicNumber, getElement(35).atomicNumber, getElement(53).atomicNumber, getElement(85).atomicNumber };
     const std::vector<int> unknown = { getElement(107).atomicNumber, getElement(108).atomicNumber, getElement(109).atomicNumber, getElement(110).atomicNumber, getElement(111).atomicNumber, getElement(112).atomicNumber, getElement(113).atomicNumber , getElement(114).atomicNumber , getElement(115).atomicNumber , getElement(116).atomicNumber };
     const std::vector<int> moleculesIndex2 = { getElement(0).atomicNumber, getElement(6).atomicNumber, getElement(7).atomicNumber, getElement(8).atomicNumber, getElement(16).atomicNumber, getElement(34).atomicNumber, getElement(52).atomicNumber };
-
+    std::vector<int> lanthanoids;
+    std::vector<int> actinoids;
 
 
     while (sandboxWindow.pollEvent(event))
@@ -279,7 +400,82 @@ void::Render::sandboxWindow(sf::RenderWindow& sandboxWindow, bool& sandboxWindow
 
     while (periodicTableOpen)
     {
+        for (int i = 19; i <= 28; i++)
+        {
+            transitionMetals.push_back(getElement(i).atomicNumber);
+        }
+        for (int i = 37; i <= 46; i++)
+        {
+            transitionMetals.push_back(getElement(i).atomicNumber);
+        }
+        for (int i = 70; i <= 78; i++)
+        {
+            transitionMetals.push_back(getElement(i).atomicNumber);
+        }
+        for (int i = 102; i <= 106; i++)
+        {
+            transitionMetals.push_back(getElement(i).atomicNumber);
+        }
+        for (int i = 55; i <= 69; i++)
+        {
+            lanthanoids.push_back(getElement(i).atomicNumber);
+        }
+        for (int i = 87; i <= 101; i++)
+        {
+            actinoids.push_back(getElement(i).atomicNumber);
+        }
 
+        for (int atomicNumber : reactiveNonMetals) {
+            getElement(atomicNumber).backgroundColor = sf::Color(97, 130, 100);
+            getElement(atomicNumber).series = "Reactive nonmetals";
+        }
+
+        for (int atomicNumber : nobleGases) {
+            getElement(atomicNumber).backgroundColor = sf::Color(217, 136, 185);
+            getElement(atomicNumber).series = "Noble gases";
+        }
+
+        for (int atomicNumber : metalloids) {
+            getElement(atomicNumber).backgroundColor = sf::Color(53, 162, 159);
+            getElement(atomicNumber).series = "Metalloids";
+        }
+
+        for (int atomicNumber : postTransitionMetals) {
+            getElement(atomicNumber).backgroundColor = sf::Color(137, 207, 243);
+            getElement(atomicNumber).series = "Post-transition metals";
+        }
+
+        for (int atomicNumber : transitionMetals) {
+            getElement(atomicNumber).backgroundColor = sf::Color(249, 155, 125);
+            getElement(atomicNumber).series = "Transition metals";
+        }
+
+        for (int atomicNumber : allkalineEarthMetals) {
+            getElement(atomicNumber).backgroundColor = sf::Color(233, 184, 36);
+            getElement(atomicNumber).series = "Allkaline earth metals";
+        }
+
+        for (int atomicNumber : allkaliMetals) {
+            getElement(atomicNumber).backgroundColor = sf::Color(238, 147, 34);
+            getElement(atomicNumber).series = "Allkali metals";
+        }
+        for (int atomicNumber : lanthanoids) {
+            getElement(atomicNumber).backgroundColor = sf::Color(255, 196, 54);
+            getElement(atomicNumber).series = "Lanthanoids";
+        }
+        for (int atomicNumber : lanthanoids) {
+            getElement(atomicNumber).backgroundColor = sf::Color(176, 146, 106);
+            getElement(atomicNumber).series = "Actinoids";
+        }
+        for (int atomicNumber : unknown) {
+            getElement(atomicNumber).backgroundColor = sf::Color(208, 212, 202);
+            getElement(atomicNumber).series = "Unknown";
+        }
+
+        for (int i = 0; i < numElements; i++) {
+            getElement(i).period = getPeriod(i + 1);
+            getElement(i).group = getGroup(i + 1);
+        }
         sandboxWindow.clear(sf::Color::White);
         value = slider1.getSliderValue();
         while (sandboxWindow.pollEvent(event))
@@ -300,8 +496,8 @@ void::Render::sandboxWindow(sf::RenderWindow& sandboxWindow, bool& sandboxWindow
 
         zoomViewText.setPosition(detailedView.getPosition().x + 5, detailedView.getPosition().y + 10);
         zoomViewText.setFillColor(sf::Color::Black);
+        zoomViewText.setFont(font);
         for (int i = 0; i < numElements; i++) {
-            sf::RectangleShape block;
             block.setSize(sf::Vector2f(elementWidth, elementHeight));
             row = getElement(i).period - 1;
             col = getElement(i).group - 1;
@@ -362,6 +558,7 @@ void::Render::sandboxWindow(sf::RenderWindow& sandboxWindow, bool& sandboxWindow
                 sandboxWindow.draw(zoomViewText);
                 sandboxWindow.draw(infoView);
                 sandboxWindow.draw(selectedElementInfo);
+
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
                 {
                     periodicTableOpen = false;

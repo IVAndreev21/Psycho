@@ -12,6 +12,13 @@ Game::Game(int width, int height, const char* title)
     questtModeIsOpen = false;
     sandboxIsOpen = false;
     isSandboxWindowClosed = false;
+    isPeriodicTableWindowClosed = false;
+    moleculesMenuOpen = false;
+    periodicTableWindow = nullptr;
+    periodicTableIsOpen = false;
+    reactionsMenu = false;
+    settingMenuOpen = false;
+
 }
 
 void Game::Run()
