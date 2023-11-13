@@ -49,4 +49,25 @@
 <br>
 <br>
 	<h2 align="center">If you like our project you can rate us well!</h2>
-	
+
+📋 Description:
+The game is created to improve peoples chemistry knowledge. 
+
+  
+ 📥 Installation
+
+```
+You can download our project by using the green "Code" button.
+
+Or by pasting the following code in your CMD:
+git clone https://github.com/IVAndreev21/Psycho.git
+```
+
+  
+ ⚙ Website Access
+
+*You can access our website by pasting this link into your browser.*
+```
+  git clone https://github.com/IVAndreev21/Psycho.git
+```
+
