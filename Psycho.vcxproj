@@ -133,11 +133,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\render.cpp" />
     <ClCompile Include="src\slider.cpp" />
+    <ClCompile Include="src\textures.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\game.hpp" />
+    <ClInclude Include="src\pch.hpp" />
+    <ClInclude Include="src\render.hpp" />
     <ClInclude Include="src\slider.h" />
+    <ClInclude Include="src\textures.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
