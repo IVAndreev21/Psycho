@@ -1,9 +1,9 @@
 #pragma once
 #include "pch.hpp"
 
+// Class for managing textures
 class Textures
 {
-private:
 public:
 	void InitialiseTextures();
 	sf::Texture logo;

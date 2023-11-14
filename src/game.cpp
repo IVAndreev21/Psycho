@@ -1,7 +1,8 @@
 #include "game.hpp"
 
+//Constructor
 Game::Game(int width, int height, const char* title)
-    : mainMenu(sf::VideoMode(width, height), title),
+    : mainMenu(sf::VideoMode(width, height), title, sf::Style::Titlebar | sf::Style::Close),  //Init window
     sandboxWindow(nullptr)
 {
     mainMenu.setFramerateLimit(60);
@@ -20,30 +21,36 @@ Game::Game(int width, int height, const char* title)
     settingMenuOpen = false;
 
 }
-
+//Start of the game
 void Game::Run()
 {
     Render* render = new Render();
 
     render->InitialiseTextures();
+    // Main game loop
 
     while (!isWindowClosed)
     {
         render->mainWindow(mainMenu, isWindowClosed, sandboxIsOpen, questtModeIsOpen, optionsMenuIsOpen);
 
+        // If sandbox is open and sandbox window is not created yet
         if (sandboxIsOpen && sandboxWindow == nullptr)
         {
-            sandboxWindow = new sf::RenderWindow(sf::VideoMode(1280, 1024), "Sandbox Window");
+            // Create a new sandbox window
+            sandboxWindow = new sf::RenderWindow(sf::VideoMode(1280, 1024), "Sandbox Window", sf::Style::Titlebar | sf::Style::Close);
             sandboxWindow->setFramerateLimit(60);
         }
     }
+    // Second loop for the sandbox window
     while (!isSandboxWindowClosed)
     {
+        // Render the sandbox window
         render->sandboxWindow(*sandboxWindow, isSandboxWindowClosed);
     }
+    // Clean up and delete the Render object
     delete render;
 }
-
+// Destructor
 Game::~Game()
 {
     if (sandboxWindow != nullptr)

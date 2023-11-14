@@ -1,6 +1,29 @@
 #include "render.hpp"
+// Constructor for the Render class
+Render::Render()
+    : elementsPerRow(18),
+        elementheight(60),
+        numActinoids(14),
+        numLanthanoids(14),
+        gap(1.0f),
+        numElements(118),
+        elementHeight(60),
+        hasIndex2(false),
+moleculesMenuOpen(false),
+settingsMenuOpen(false),
+reactionsMenuOpen(false),
+periodicTableOpen(false) {
 
+    // Allocate memory for the Textures object
+    textures = new Textures;
+    col = 0;
+    elementWidth = 0;
+    energyLevels = 0;
+    row = 0;
+    value = 0;
+}
 
+// Function to get the period of an element based on its atomic number
 int getPeriod(int atomicNumber) {
     if (atomicNumber >= 1 && atomicNumber <= 2) {
         return 1;
@@ -26,6 +49,7 @@ int getPeriod(int atomicNumber) {
     return 0;
 }
 
+// Function to get the group of an element based on its atomic number
 int getGroup(int i) {
     if (i == 1 || i == 3 || i == 11 || i == 19 || i == 37 || i == 55 || i == 87)
     {
@@ -107,9 +131,11 @@ int getGroup(int i) {
     {
         return 20;
     }
+    return 0;
 }
 
 
+// Function to get an element by its index
 Element& Render::getElement(int index)
 {
     static Element getElement[118] = {
@@ -142,33 +168,21 @@ Element& Render::getElement(int index)
 }
 
 
+// Function to get a predefined reaction by its index
 Reaction& Render::getReaction(int index)
 {
     static Reaction getReaction[8] = {
         {"H","H","2H"},{"O","O","O2"},{"N","N","2N"},{"Cl","Cl","Cl2"},{"Br","Br","Br2"},{"I","I","I2"},{"F","F","F2"}, {"2H2", "O2", "2H2O"}
     };
+    return getReaction[index];
 }
 
-Render::Render()
-{
-    textures = new Textures;
-    energyLevels = 0;
-    value = 0;
-    row = 0;
-    col = 0;
-    hasIndex2 = false;
-    moleculesMenuOpen = false;
-    settingsMenuOpen = false;
-    reactionsMenuOpen = false;
-    periodicTableOpen = false;
-    moleculesMenuOpen = false;
-
-}
-
+// Function to initialize textures
 void Render::InitialiseTextures()
 {
     textures->InitialiseTextures();
 }
+// Function to handle the main menu window
 void Render::mainWindow(sf::RenderWindow& mainMenuWindow, bool& isWindowClosed, bool& sandboxIsOpen, bool& questtModeIsOpen, bool& optionsMenuIsOpen)
 {
     sf::Font font;
@@ -177,15 +191,19 @@ void Render::mainWindow(sf::RenderWindow& mainMenuWindow, bool& isWindowClosed, 
         mainMenuWindow.close();
         std::cout << "Unable to find font";
     }
+    // Set up logo sprite
     sf::Sprite logoSprite(textures->logo);
     logoSprite.setPosition(sandboxModeButton.getPosition().x + 50, sandboxModeButton.getPosition().y - 300);
     logoSprite.setScale(0.25, 0.25);
 
+    // Set up carbon sprite
+    textures->carbon.setSmooth(true);
     sf::Sprite carbonSprite(textures->carbon);
     carbonSprite.setPosition(mainMenuWindow.getSize().x / 2 + 100, mainMenuWindow.getSize().y / 2 - 200);
     carbonSprite.setScale(1.5f, 1.5f);
 
 
+    // Set up buttons for sandbox mode, quest mode, and options
     sandboxModeButton.setPosition(sf::Vector2f(50.0f, 350.0f));
     sandboxModeButton.setSize(sf::Vector2f(450.0f, 150.0f));
 
@@ -195,6 +213,7 @@ void Render::mainWindow(sf::RenderWindow& mainMenuWindow, bool& isWindowClosed, 
     optionsButton.setPosition(50.0f, 750.0f);
     optionsButton.setSize(sf::Vector2f(450.0f, 150.0f));
 
+    // Set up text for menu headings
     mainMenuH.setFont(font);
     mainMenuH.setCharacterSize(40);
     mainMenuH.setString("Psycho");
@@ -224,7 +243,6 @@ void Render::mainWindow(sf::RenderWindow& mainMenuWindow, bool& isWindowClosed, 
         if (event.type == sf::Event::Closed)
         {
             mainMenuWindow.close();
-            isWindowClosed = true;
 
         }
 
@@ -232,7 +250,7 @@ void Render::mainWindow(sf::RenderWindow& mainMenuWindow, bool& isWindowClosed, 
         mousePos = sf::Mouse::getPosition(mainMenuWindow);
 
         //Sandbox button
-        if (sandboxModeButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
+        if (sandboxModeButton.getGlobalBounds().contains(float(mousePos.x), float(mousePos.y)))
         {
             sandboxModeButton.setFillColor(sf::Color::Red);
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
@@ -249,14 +267,12 @@ void Render::mainWindow(sf::RenderWindow& mainMenuWindow, bool& isWindowClosed, 
         }
 
         //Quest mode button
-        if (questModeButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
+        if (questModeButton.getGlobalBounds().contains(float(mousePos.x), float(mousePos.y)))
         {
             questModeButton.setFillColor(sf::Color::Red);
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
             {
                 mainMenuWindow.close();
-                questtModeIsOpen = true;
-                isWindowClosed = true;
             }
         }
         else
@@ -265,14 +281,12 @@ void Render::mainWindow(sf::RenderWindow& mainMenuWindow, bool& isWindowClosed, 
 
         }
 
-        if (optionsButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
+        if (optionsButton.getGlobalBounds().contains(float(mousePos.x), float(mousePos.y)))
         {
             optionsButton.setFillColor(sf::Color::Red);
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
             {
                 mainMenuWindow.close();
-                optionsMenuIsOpen = true;
-                isWindowClosed = true;
             }
         }
         else
@@ -281,6 +295,8 @@ void Render::mainWindow(sf::RenderWindow& mainMenuWindow, bool& isWindowClosed, 
 
         }
     }
+
+    // Clear, draw, and display the main menu window
     mainMenuWindow.clear(sf::Color::White);
     mainMenuWindow.draw(sandboxModeButton);
     mainMenuWindow.draw(questModeButton);
@@ -294,22 +310,23 @@ void Render::mainWindow(sf::RenderWindow& mainMenuWindow, bool& isWindowClosed, 
     mainMenuWindow.display();
 }
 
+// Function to render the sandbox window
 void::Render::sandboxWindow(sf::RenderWindow& sandboxWindow, bool& sandboxWindowIsOpen)
 {
-    const int elementsPerRow = 18;
-    const int elementHeight = 60;
-    const int numLanthanoids = 14;
-    const int numActinoids = 14;
-    const float gap = 1.0f;
-    const int numElements = 118;
-    const int elementWidth = (sandboxWindow.getSize().x - 330) / elementsPerRow;
+    // Calculate element width based on window size
+    elementWidth = (sandboxWindow.getSize().x - 330) / elementsPerRow;
 
+    // Set up sizes for detailed and info views
     detailedView.setSize(sf::Vector2f(180.0f, 180.0f));
     infoView.setSize(sf::Vector2f(250.0f, 500.0f));
 
+    // Set up navbar
     navbar.setSize(sf::Vector2f(sandboxWindow.getSize().x, 140));
     navbar.setPosition(sf::Vector2f(0, sandboxWindow.getSize().y - 120));
     navbar.setFillColor(sf::Color(169, 169, 169));
+
+    // Set up icons for molecules, settings, periodic table, and reactions
+        // Set positions and scales for the icons
 
     molecules_icon.setTexture(textures->molecules);
     ptable_icon.setTexture(textures->ptable);
@@ -329,17 +346,15 @@ void::Render::sandboxWindow(sf::RenderWindow& sandboxWindow, bool& sandboxWindow
     reactions_icon.setScale(0.5f, 0.5f);
 
 
+    // Create a slider and set its properties
     Slider slider1(120, 105);
 
     slider1.create(-273, 5721);
     slider1.setSliderValue(235);
 
-    sf::Font font;
 
-    if (!font.loadFromFile("resources/fonts/arial.ttf")) {
-        sandboxWindow.close();
-        std::cout << "Unable to find font";
-    }
+    // Load font and initialize text objects
+    font.loadFromFile("resources/fonts/arial.ttf");
 
     selectedElementInfo.setString("");
     selectedElementInfo.setFont(font);
@@ -362,21 +377,20 @@ void::Render::sandboxWindow(sf::RenderWindow& sandboxWindow, bool& sandboxWindow
     elementSymbol3Text.setCharacterSize(20);
 
 
-    const std::vector<int> reactiveNonMetals = { getElement(-2).atomicNumber, getElement(4).atomicNumber, getElement(5).atomicNumber, getElement(6).atomicNumber, getElement(7).atomicNumber, getElement(13).atomicNumber, getElement(14).atomicNumber, getElement(15).atomicNumber, getElement(32).atomicNumber, getElement(33).atomicNumber, getElement(51).atomicNumber };
-    const std::vector<int> nobleGases = { getElement(0).atomicNumber, getElement(8).atomicNumber, getElement(16).atomicNumber, getElement(34).atomicNumber, getElement(52).atomicNumber, getElement(84).atomicNumber };
+    // Initialize lists of elements for different categories
+    reactiveNonMetals = { getElement(-2).atomicNumber, getElement(4).atomicNumber, getElement(5).atomicNumber, getElement(6).atomicNumber, getElement(7).atomicNumber, getElement(13).atomicNumber, getElement(14).atomicNumber, getElement(15).atomicNumber, getElement(32).atomicNumber, getElement(33).atomicNumber, getElement(51).atomicNumber };
+    nobleGases = { getElement(0).atomicNumber, getElement(8).atomicNumber, getElement(16).atomicNumber, getElement(34).atomicNumber, getElement(52).atomicNumber, getElement(84).atomicNumber };
 
     //Metaloids
-    const std::vector<int> metalloids = { getElement(3).atomicNumber, getElement(12).atomicNumber, getElement(30).atomicNumber, getElement(31).atomicNumber, getElement(49).atomicNumber, getElement(50).atomicNumber, getElement(83).atomicNumber };
+    metalloids = { getElement(3).atomicNumber, getElement(12).atomicNumber, getElement(30).atomicNumber, getElement(31).atomicNumber, getElement(49).atomicNumber, getElement(50).atomicNumber, getElement(83).atomicNumber };
 
     //Metals
-    const std::vector<int> postTransitionMetals = { getElement(11).atomicNumber,getElement(29).atomicNumber, getElement(47).atomicNumber, getElement(48).atomicNumber, getElement(79).atomicNumber, getElement(80).atomicNumber, getElement(81).atomicNumber, getElement(82).atomicNumber };
-    std::vector<int> transitionMetals;
-    const std::vector<int> allkalineEarthMetals = { getElement(2).atomicNumber, getElement(10).atomicNumber, getElement(18).atomicNumber, getElement(36).atomicNumber, getElement(54).atomicNumber, getElement(86).atomicNumber };
-    const std::vector<int> allkaliMetals = { getElement(1).atomicNumber, getElement(9).atomicNumber, getElement(17).atomicNumber, getElement(35).atomicNumber, getElement(53).atomicNumber, getElement(85).atomicNumber };
-    const std::vector<int> unknown = { getElement(107).atomicNumber, getElement(108).atomicNumber, getElement(109).atomicNumber, getElement(110).atomicNumber, getElement(111).atomicNumber, getElement(112).atomicNumber, getElement(113).atomicNumber , getElement(114).atomicNumber , getElement(115).atomicNumber , getElement(116).atomicNumber };
-    const std::vector<int> moleculesIndex2 = { getElement(0).atomicNumber, getElement(6).atomicNumber, getElement(7).atomicNumber, getElement(8).atomicNumber, getElement(16).atomicNumber, getElement(34).atomicNumber, getElement(52).atomicNumber };
-    std::vector<int> lanthanoids;
-    std::vector<int> actinoids;
+    postTransitionMetals = { getElement(11).atomicNumber,getElement(29).atomicNumber, getElement(47).atomicNumber, getElement(48).atomicNumber, getElement(79).atomicNumber, getElement(80).atomicNumber, getElement(81).atomicNumber, getElement(82).atomicNumber };
+    transitionMetals;
+    allkalineEarthMetals = { getElement(2).atomicNumber, getElement(10).atomicNumber, getElement(18).atomicNumber, getElement(36).atomicNumber, getElement(54).atomicNumber, getElement(86).atomicNumber };
+    allkaliMetals = { getElement(1).atomicNumber, getElement(9).atomicNumber, getElement(17).atomicNumber, getElement(35).atomicNumber, getElement(53).atomicNumber, getElement(85).atomicNumber };
+    unknown = { getElement(107).atomicNumber, getElement(108).atomicNumber, getElement(109).atomicNumber, getElement(110).atomicNumber, getElement(111).atomicNumber, getElement(112).atomicNumber, getElement(113).atomicNumber , getElement(114).atomicNumber , getElement(115).atomicNumber , getElement(116).atomicNumber };
+    moleculesIndex2 = { getElement(0).atomicNumber, getElement(6).atomicNumber, getElement(7).atomicNumber, getElement(8).atomicNumber, getElement(16).atomicNumber, getElement(34).atomicNumber, getElement(52).atomicNumber };
 
 
     while (sandboxWindow.pollEvent(event))
@@ -390,7 +404,7 @@ void::Render::sandboxWindow(sf::RenderWindow& sandboxWindow, bool& sandboxWindow
         else if (event.type == sf::Event::MouseButtonPressed) {
             if (event.mouseButton.button == sf::Mouse::Left) {
                 for (size_t i = 0; i < circles.size(); i++) {
-                    if (circles[i].shape.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                    if (circles[i].shape.getGlobalBounds().contains(float(mousePos.x), float(mousePos.y))) {
                         circles[i].isDragging = true;
                     }
                 }
@@ -404,25 +418,27 @@ void::Render::sandboxWindow(sf::RenderWindow& sandboxWindow, bool& sandboxWindow
             }
         }
     }
+    // Check mouse position and button press for various icon interactions
     mousePos = sf::Mouse::getPosition(sandboxWindow);
-    if (ptable_icon.getGlobalBounds().contains(mousePos.x, mousePos.y) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
+    if (ptable_icon.getGlobalBounds().contains(float(mousePos.x), float(mousePos.y)) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
         periodicTableOpen = true;
     }
-    if (molecules_icon.getGlobalBounds().contains(mousePos.x, mousePos.y) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
+    if (molecules_icon.getGlobalBounds().contains(float(mousePos.x), float(mousePos.y)) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
         moleculesMenuOpen = true;
     }
-    if (settings_icon.getGlobalBounds().contains(mousePos.x, mousePos.y) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
+    if (settings_icon.getGlobalBounds().contains(float(mousePos.x), float(mousePos.y)) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
         settingsMenuOpen = true;
     }
-    if (reactions_icon.getGlobalBounds().contains(mousePos.x, mousePos.y) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
+    if (reactions_icon.getGlobalBounds().contains(float(mousePos.x), float(mousePos.y)) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
         reactionsMenuOpen = true;
     }
     //Open periodic table
 
+        // While the periodic table is open, categorize elements and set background colors
     while (periodicTableOpen)
     {
         for (int i = 19; i <= 28; i++)
@@ -501,8 +517,13 @@ void::Render::sandboxWindow(sf::RenderWindow& sandboxWindow, bool& sandboxWindow
             getElement(i).period = getPeriod(i + 1);
             getElement(i).group = getGroup(i + 1);
         }
+        // Clear the sandbox window with a white background
         sandboxWindow.clear(sf::Color::White);
-        value = slider1.getSliderValue();
+
+        // Get the current value of the slider
+        value = (int)slider1.getSliderValue();
+
+        // Event handling loop for the sandbox window
         while (sandboxWindow.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
@@ -511,26 +532,32 @@ void::Render::sandboxWindow(sf::RenderWindow& sandboxWindow, bool& sandboxWindow
             }
         }
         mousePos = sf::Mouse::getPosition(sandboxWindow);
+        
+        // Set positions for detailed and info views
         detailedView.setPosition(sf::Vector2f(1030.f, 100.f));
 
         infoView.setPosition(sf::Vector2f(995.f, 290.f));
         infoView.setFillColor(sf::Color(208, 212, 202));
 
+        // Set properties for selected element info text
         selectedElementInfo.setFillColor(sf::Color::Black);
         selectedElementInfo.setPosition(1010, 295);
 
+        // Set properties for zoom view text
         zoomViewText.setPosition(detailedView.getPosition().x + 5, detailedView.getPosition().y + 10);
         zoomViewText.setFillColor(sf::Color::Black);
         zoomViewText.setFont(font);
         for (int i = 0; i < numElements; i++) {
-            block.setSize(sf::Vector2f(elementWidth, elementHeight));
+            block.setSize(sf::Vector2f((float)elementWidth, (float)elementHeight));
             row = getElement(i).period - 1;
             col = getElement(i).group - 1;
 
 
+            // Set position for the block in the periodic table
             block.setPosition(col * (elementWidth + gap), row * (elementHeight + gap) + 200); // Add an offset based on the gap
 
             zoomstr = std::to_string(getElement(i).atomicNumber) + "\n" + getElement(i).symbol + "\n" + getElement(i).name + "\n" + std::to_string(getElement(i).weight);
+            // Update zoom view text and element symbol text
             zoomViewText.setString(zoomstr);
 
             elementSymbolText.setString(getElement(i).symbol);
@@ -573,7 +600,7 @@ void::Render::sandboxWindow(sf::RenderWindow& sandboxWindow, bool& sandboxWindow
 
             selectedElementInfo.setString(infoViewStr);
 
-            if (block.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+            if (block.getGlobalBounds().contains(float(mousePos.x), float(mousePos.y))) {
 
                 block.setOutlineThickness(1);
                 block.setOutlineColor(sf::Color::Blue);
@@ -590,6 +617,7 @@ void::Render::sandboxWindow(sf::RenderWindow& sandboxWindow, bool& sandboxWindow
                     selectedElement.push_back(getElement(i));
                     circles.emplace_back(100, 100, 30, getElement(i).backgroundColor);
                     circleText.setString(getElement(i).symbol);
+                    circleText.setFillColor(getElement(i).textColor);
                     elementSymbols.push_back(circleText);
                     if (selectedElement.size() >= 2) {
                         if (selectedElement[selectedElement.size() - 1].symbol == selectedElement[selectedElement.size() - 2].symbol) {
@@ -645,7 +673,7 @@ void::Render::sandboxWindow(sf::RenderWindow& sandboxWindow, bool& sandboxWindow
             infoViewStr += "\n\n\nElectronegativity \t" + std::to_string(getElement(56 + i).electronegativity) + "\n\n\nMelting point\t" + std::to_string(getElement(56 + i).meltingPoint) + "\n\n\nBoiling point\t" + std::to_string(getElement(56 + i).boilingPoint) + "\n\n\nDiscovered\t" + std::to_string(getElement(56 + i).yearDiscovery);
 
             selectedElementInfo.setString(infoViewStr);
-            if (block.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+            if (block.getGlobalBounds().contains(float(mousePos.x), float(mousePos.y))) {
                 block.setOutlineThickness(1);
                 block.setOutlineColor(sf::Color::Blue);
                 sandboxWindow.draw(detailedView);
@@ -705,7 +733,7 @@ void::Render::sandboxWindow(sf::RenderWindow& sandboxWindow, bool& sandboxWindow
             infoViewStr += "\n\n\nElectronegativity \t" + std::to_string(getElement(88 + i).electronegativity) + "\n\n\nMelting point\t" + std::to_string(getElement(88 + i).meltingPoint) + "\n\n\nBoiling point\t" + std::to_string(getElement(88 + i).boilingPoint) + "\n\n\nDiscovered\t" + std::to_string(getElement(88 + i).yearDiscovery);
 
             selectedElementInfo.setString(infoViewStr);
-            if (block.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+            if (block.getGlobalBounds().contains(float(mousePos.x), float(mousePos.y))) {
                 block.setOutlineThickness(1);
                 block.setOutlineColor(sf::Color::Blue);
                 sandboxWindow.draw(detailedView);
@@ -740,13 +768,89 @@ void::Render::sandboxWindow(sf::RenderWindow& sandboxWindow, bool& sandboxWindow
     }
 
     sandboxWindow.clear(sf::Color::White);
+
+    while (reactionsMenuOpen) {
+        sf::Event event;
+        while (sandboxWindow.pollEvent(event)) {
+            if (event.type == sf::Event::Closed)
+                reactionsMenuOpen = false;
+        }
+        sandboxWindow.clear(sf::Color(125, 124, 124));
+
+        const float xOffset = 10.0f;  // Initial x-position
+        const float yOffset = 10.0f;  // Initial y-position
+        const float spacingX = 20.0f; // Space between rectangles in x-direction
+        const float spacingY = 20.0f; // Space between rectangles in y-direction
+        float currentX = xOffset;
+        float currentY = yOffset;
+
+        mousePos = sf::Mouse::getPosition(sandboxWindow);
+
+        if (selectedElement.size() >= 2) {
+            for (size_t i = 0; i < selectedElement.size() - 1; ++i) {
+                for (size_t j = i + 1; j < selectedElement.size(); ++j) {
+                    reactant1 = selectedElement[i].symbol;
+                    reactant2 = selectedElement[j].symbol;
+
+                    // Check if the selected elements form a predefined reaction
+                    for (int k = 0; k < 8; ++k) {
+                        if ((getReaction(k).reactant1 == reactant1 && getReaction(k).reactant2 == reactant2) ||
+                            (getReaction(k).reactant1 == reactant2 && getReaction(k).reactant2 == reactant1)) {
+                            // Create a rectangle shape
+                            sf::RectangleShape reactionRect(sf::Vector2f(200, 100));
+                            reactionRect.setPosition(currentX, currentY);
+                            reactionRect.setFillColor(sf::Color::Black);
+
+                            // Create text for reactants and product
+                            sf::Text reactionText;
+                            reactionText.setFont(font); // Assuming you've loaded the font already
+                            reactionText.setString("Reaction: " + reactant1 + " + " + reactant2 + " -> " + getReaction(k).product);
+                            reactionText.setCharacterSize(16);
+                            reactionText.setPosition(currentX + 10, currentY + 10);
+                            reactionText.setFillColor(sf::Color::White);
+
+                            // Draw the rectangle and text
+                            sandboxWindow.draw(reactionRect);
+                            sandboxWindow.draw(reactionText);
+
+                            // Update the current position for the next rectangle
+                            currentX += reactionRect.getSize().x + spacingX;
+
+                            // Check if the next rectangle will exceed the window width
+                            if (currentX + reactionRect.getSize().x + spacingX > sandboxWindow.getSize().x) {
+                                currentX = xOffset;  // Reset x-position
+                                currentY += reactionRect.getSize().y + spacingY;  // Move to the next line
+                            }
+                            if (reactionRect.getGlobalBounds().contains(mousePos.x, mousePos.y) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
+                            {
+                                reactionAvailable = true;
+                                reactionsMenuOpen = false;
+                                // You can break out of the loop since you found a match
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        //If molecules haven't been formed
+        if (!molecules.size() >= 1) {
+            // Display a message if there are not enough selected elements
+            noReactionText.setFont(font);
+            noReactionText.setString("There is no available reaction with the selected elements.");
+            noReactionText.setCharacterSize(16);
+            noReactionText.setPosition(xOffset, yOffset);
+            noReactionText.setFillColor(sf::Color::Black);
+            sandboxWindow.draw(noReactionText);
+        }
+
+        sandboxWindow.display();
+    }
     for (size_t i = 0; i < circles.size(); i++) {
         if (circles[i].isDragging) {
             circles[i].shape.setPosition(mousePos.x, mousePos.y);
         }
     }
-
-
     for (size_t i = 0; i < circles.size(); i++) {
         sf::FloatRect textBounds = elementSymbols[i].getLocalBounds();
         elementSymbols[i].setOrigin(textBounds.left + textBounds.width / 2.0f, textBounds.top + textBounds.height / 2.0f);
@@ -754,7 +858,6 @@ void::Render::sandboxWindow(sf::RenderWindow& sandboxWindow, bool& sandboxWindow
 
         sandboxWindow.draw(circles[i].shape);
         sandboxWindow.draw(elementSymbols[i]);
-        std::cout << "ds";
     }
 
     float lineThickness = 5.0f;
@@ -779,39 +882,37 @@ void::Render::sandboxWindow(sf::RenderWindow& sandboxWindow, bool& sandboxWindow
 
 
                         float xOffset = distanceBetweenElements * (j - i);
-                        circles[j].shape.setPosition(circles[i].shape.getPosition().x + xOffset, circles[i].shape.getPosition().y);
-
+                        if (reactionAvailable)
+                        {
+                            circles[j].shape.setPosition(circles[i].shape.getPosition().x + xOffset, circles[i].shape.getPosition().y);
+                        }
                         break;
                     }
                 }
             }
         }
 
-
-        for (const auto& connection : connections) {
-            int i = connection.index1;
-            int j = connection.index2;
-
-
-            sf::Vector2f delta = circles[j].shape.getPosition() - circles[i].shape.getPosition();
-
-            float length = std::sqrt(delta.x * delta.x + delta.y * delta.y);
+        if (reactionAvailable)
+        {
+            for (const auto& connection : connections) {
+                int i = connection.index1;
+                int j = connection.index2;
 
 
-            float rotation = std::atan2(delta.y, delta.x) * 180.0f / 3.14159265f;
+                sf::Vector2f delta = circles[j].shape.getPosition() - circles[i].shape.getPosition();
 
-            sf::RectangleShape line;
-            line.setSize(sf::Vector2f(length, lineThickness));
-            line.setOrigin(0, lineThickness / 2.0f);
-            line.setPosition(circles[i].shape.getPosition());
-            line.setRotation(rotation);
-            line.setFillColor(sf::Color::Black);
-            sandboxWindow.draw(line);
+                float length = std::sqrt(delta.x * delta.x + delta.y * delta.y);
+
+                sf::RectangleShape line;
+                line.setSize(sf::Vector2f(length, lineThickness));
+                line.setOrigin(0, lineThickness / 2.0f);
+                line.setPosition(circles[i].shape.getPosition());
+                line.setFillColor(sf::Color::Black);
+                sandboxWindow.draw(line);
+            }
         }
     }
 
-
-    sandboxWindow.clear(sf::Color::White);
     sandboxWindow.draw(navbar);
     sandboxWindow.draw(molecules_icon);
     sandboxWindow.draw(settings_icon);
