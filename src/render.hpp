@@ -107,6 +107,8 @@ public:
     void InitialiseTextures();
     void UnloadTextures();
     Element& getElement(int index);
+    Reaction& getReaction(int index);
+    std::vector<Connection> connections;
 
 };
 

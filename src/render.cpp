@@ -140,6 +140,15 @@ Element& Render::getElement(int index)
     };
     return getElement[index];
 }
+
+
+Reaction& Render::getReaction(int index)
+{
+    static Reaction getReaction[8] = {
+        {"H","H","2H"},{"O","O","O2"},{"N","N","2N"},{"Cl","Cl","Cl2"},{"Br","Br","Br2"},{"I","I","I2"},{"F","F","F2"}, {"2H2", "O2", "2H2O"}
+    };
+}
+
 Render::Render()
 {
     textures = new Textures;
@@ -377,6 +386,22 @@ void::Render::sandboxWindow(sf::RenderWindow& sandboxWindow, bool& sandboxWindow
             sandboxWindow.close();
             sandboxWindowIsOpen = true;
 
+        }
+        else if (event.type == sf::Event::MouseButtonPressed) {
+            if (event.mouseButton.button == sf::Mouse::Left) {
+                for (size_t i = 0; i < circles.size(); i++) {
+                    if (circles[i].shape.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                        circles[i].isDragging = true;
+                    }
+                }
+            }
+        }
+        else if (event.type == sf::Event::MouseButtonReleased) {
+            if (event.mouseButton.button == sf::Mouse::Left) {
+                for (size_t i = 0; i < circles.size(); i++) {
+                    circles[i].isDragging = false;
+                }
+            }
         }
     }
     mousePos = sf::Mouse::getPosition(sandboxWindow);
@@ -713,6 +738,79 @@ void::Render::sandboxWindow(sf::RenderWindow& sandboxWindow, bool& sandboxWindow
         }
         sandboxWindow.display();
     }
+
+    sandboxWindow.clear(sf::Color::White);
+    for (size_t i = 0; i < circles.size(); i++) {
+        if (circles[i].isDragging) {
+            circles[i].shape.setPosition(mousePos.x, mousePos.y);
+        }
+    }
+
+
+    for (size_t i = 0; i < circles.size(); i++) {
+        sf::FloatRect textBounds = elementSymbols[i].getLocalBounds();
+        elementSymbols[i].setOrigin(textBounds.left + textBounds.width / 2.0f, textBounds.top + textBounds.height / 2.0f);
+        elementSymbols[i].setPosition(circles[i].shape.getPosition());
+
+        sandboxWindow.draw(circles[i].shape);
+        sandboxWindow.draw(elementSymbols[i]);
+        std::cout << "ds";
+    }
+
+    float lineThickness = 5.0f;
+    bool connected = false;
+
+    float distanceBetweenElements = 100.0f;
+    std::vector<bool> isElementConnected(selectedElement.size(), false);
+
+    if (selectedElement.size() >= 2) {
+        for (int i = 0; i < selectedElement.size() - 1; ++i) {
+            if (!isElementConnected[i]) {
+                for (int j = i + 1; j < selectedElement.size(); ++j) {
+                    if (!isElementConnected[j] &&
+                        selectedElement[i].symbol == selectedElement[j].symbol &&
+                        std::find(moleculesIndex2.begin(), moleculesIndex2.end(), selectedElement[i].atomicNumber) != moleculesIndex2.end() &&
+                        std::find(moleculesIndex2.begin(), moleculesIndex2.end(), selectedElement[j].atomicNumber) != moleculesIndex2.end()) {
+
+
+                        connections.push_back({ i, j });
+                        isElementConnected[i] = true;
+                        isElementConnected[j] = true;
+
+
+                        float xOffset = distanceBetweenElements * (j - i);
+                        circles[j].shape.setPosition(circles[i].shape.getPosition().x + xOffset, circles[i].shape.getPosition().y);
+
+                        break;
+                    }
+                }
+            }
+        }
+
+
+        for (const auto& connection : connections) {
+            int i = connection.index1;
+            int j = connection.index2;
+
+
+            sf::Vector2f delta = circles[j].shape.getPosition() - circles[i].shape.getPosition();
+
+            float length = std::sqrt(delta.x * delta.x + delta.y * delta.y);
+
+
+            float rotation = std::atan2(delta.y, delta.x) * 180.0f / 3.14159265f;
+
+            sf::RectangleShape line;
+            line.setSize(sf::Vector2f(length, lineThickness));
+            line.setOrigin(0, lineThickness / 2.0f);
+            line.setPosition(circles[i].shape.getPosition());
+            line.setRotation(rotation);
+            line.setFillColor(sf::Color::Black);
+            sandboxWindow.draw(line);
+        }
+    }
+
+
     sandboxWindow.clear(sf::Color::White);
     sandboxWindow.draw(navbar);
     sandboxWindow.draw(molecules_icon);
